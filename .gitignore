@@ -1,0 +1,14 @@
+*.txt
+libs
+libs/*
+ivy.jar
+mspa.java
+*.class
+logs
+joaje
+bone.gif
+rip.png
+themage
+zodiaclock
+emily.png
+kerpranked.png
