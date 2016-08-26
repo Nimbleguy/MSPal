@@ -409,7 +409,7 @@ public class Mspa{
 							+ ":themage: тхе маге\n"
 							+ ":kerpranked: with pd kerprank```");
 				}
-				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock2)){
+				if(!(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
 					pm.sendMessage("```:emily: the dream```");
 				}
 			}
