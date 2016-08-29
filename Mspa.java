@@ -401,7 +401,7 @@ public class Mspa{
 						+ ":endlog: end a chatlog\n"
 						+ ":invite: invite link\n"
 						+ ":cue: the most accurate 8ball\n"
-						+ ":joaje: toggle jokes in the current channel\n"
+						+ ":joaje: allowed users may toggle jokes in the current channel\n"
 						+ ":kek: topkek\n"
 						+ ":topkek: literally :kek:\n"
 						+ ":marriage: what do you think\n"
@@ -497,7 +497,7 @@ public class Mspa{
 				}
 				chan.sendMessage(s.equalsIgnoreCase("What's your favorite idea?") ? "Mine is being creative." : out);
 			}
-			else if(msg.equals(":joaje:")){
+			else if(msg.equals(":joaje:") && chan.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_MESSAGES)){
 				if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
 					joaje.put(chan.getID(), null);
 				}
