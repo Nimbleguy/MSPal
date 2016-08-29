@@ -233,6 +233,7 @@ public class Mspa{
 
 			if(msg.equals(":::") && e.getMessage().getAuthor().getID().equals(owner)){
 				chan.sendMessage(last);
+				e.getMessage().delete();
 			}
 			if(msg.contains(":mspa:")){
 				chan.sendFile(new File("./mspa.png"));
@@ -246,7 +247,7 @@ public class Mspa{
 //			if(msg.contains(":topkek:") || msg.contains(":kek:")){
 //				chan.sendFile(new File("./kek.png"));
 //			}
-			if(msg.contains(":emily") && !(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock2)){
+			if(msg.contains(":emily") && !(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
 				chan.sendFile(new File("./emily.png"));
 			}
 			if(msg.contains(":marriage:")){
@@ -276,6 +277,12 @@ public class Mspa{
 			if(msg.contains(":yee:")){
 				chan.sendFile(new File("./yee.png"));
 			}
+			if(msg.contains(":ham:")){
+				chan.sendFile(new File("./ham.png"));
+			}
+			if(msg.contains(":deathstare:")){
+				chan.sendFile(new File("./deathstare.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -293,6 +300,9 @@ public class Mspa{
 						+ "33% Off ---F\n"
 						+ "66% Off ---L\n"
 						+ "Manufacturer's Defect ---e\n"
+						+ "DON'T FORGET OUR SPECIAL STOCK!\n"
+						+ "Automatic: ︻┻●═E\n"
+						+ "Pitchfork: ---E---E\n"
 						+ "NEW IN STOCK. DIRECTLY FROM LIECHTENSTEIN. EUROPEAN MODELS!\n"
 						+ "The Euro ---€\n"
 						+ "The Pound ---£\n"
@@ -332,6 +342,9 @@ public class Mspa{
 				else if(buy.equalsIgnoreCase("Automatic")){
 					chan.sendMessage("︻̷┻̿●═E");
 				}
+				else if(buy.equalsIgnoreCase("Pitchfork")){
+					chan.sendMessage("---E---E");
+				}
 				else{
 					chan.sendMessage("We don't have that pitchfork in stock.");
 				}
@@ -345,6 +358,9 @@ public class Mspa{
 				}
 				if(msg.contains(":kerpranked:")){
 					chan.sendFile(new File("./kerpranked.png"));
+				}
+				if(msg.contains(":mimeowl:")){
+					chan.sendMessage("**:/: O) /_\\\\ (O :\\:**");
 				}
 				if(msg.equals(":themage:")){
 					FileInputStream fin = new FileInputStream(new File("./themage"));
@@ -402,12 +418,15 @@ public class Mspa{
 						+ ":yee: soos and dinosaur bros\n"
 						+ ":kektop: memes are going to kill us all one day\n"
 						+ ":keklow: you just wait\n"
-						+ "there's a dynamic kek generator, the keks have won the war. all that's left is death.```");
+						+ "there's a dynamic kek generator, the keks have won the war. all that's left is death.\n"
+						+ ":ham: it's a meme now\n"
+						+ ":deathstare: for when flowey is your **b e s t f r i e n d**```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
 							+ ":themage: тхе маге\n"
-							+ ":kerpranked: with pd kerprank```");
+							+ ":kerpranked: with pd kerprank\n"
+							+ ":mimeowl: hail, the most fearsome of conflict shards and ██████. the end of ends ever looms.```");
 				}
 				if(!(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
 					pm.sendMessage("```:emily: the dream```");
