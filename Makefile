@@ -1,4 +1,4 @@
-ARTCORD=com.github.austinv11 Discord4J 2.5.3
+ARTCORD=com.github.austinv11 Discord4J 2.5.4
 ARTBIN=com.github.kennedyoliveira pastebin4j 1.2.0
 ARTCLEV=ca.pjer chatter-bot-api 1.4.2
 
@@ -8,7 +8,7 @@ build : dep Mspa.class
 
 dep : libs
 
-libs : ivysettings.xml ivy.jar Makefile
+libs : ivysettings.xml ivy.jar
 	-mkdir libs
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTCORD) -settings ivysettings.xml
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTBIN) -settings ivysettings.xml

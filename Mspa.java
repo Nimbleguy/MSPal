@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.github.kennedyoliveira.pastebin4j.*;
 
 import com.google.code.chatterbotapi.*;
+import com.google.gson.Gson;
 
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -23,6 +24,12 @@ import java.util.Random;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Iterator;
+import java.util.Collections;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.util.regex.Pattern;
@@ -56,9 +63,13 @@ public class Mspa{
 
 	public static HashMap<String, String> joaje;
 
+	public static List<String> cat;
+
 	public static ChatterBotSession chat;
 
 	public static Pattern keks = Pattern.compile(":((top)|(low)|k|e|k)+:");
+
+	public static boolean alreadycat = false;
 
 	public Mspa(String token, String own, String bin){
 		try{
@@ -80,7 +91,7 @@ public class Mspa{
 			}
 			File j = new File("./joaje");
 			if(j.exists()){
-				FileInputStream fin = new FileInputStream(map);
+				FileInputStream fin = new FileInputStream(j);
 				ObjectInputStream oin = new ObjectInputStream(fin);
 				joaje = (HashMap<String, String>)oin.readObject();
 				oin.close();
@@ -88,6 +99,17 @@ public class Mspa{
 			}
 			else{
 				j.createNewFile();
+			}
+			File c = new File("./cat");
+			if(c.exists()){
+				FileInputStream fin = new FileInputStream(c);
+				ObjectInputStream oin = new ObjectInputStream(fin);
+				cat = Collections.synchronizedList((List<String>)oin.readObject());
+				oin.close();
+				fin.close();
+			}
+			else{
+				c.createNewFile();
 			}
 		}
 		catch(Exception e){
@@ -98,6 +120,9 @@ public class Mspa{
 		}
 		if(joaje == null){
 			joaje = new HashMap<String, String>();
+		}
+		if(cat == null){
+			cat = Collections.synchronizedList(new ArrayList<String>());
 		}
 	}
 
@@ -122,11 +147,55 @@ public class Mspa{
 		}
 	}
 
+	public void beginFacting(){
+		new Thread() {
+			public void run(){
+				Calendar cal = Calendar.getInstance();
+				cal.set(Calendar.HOUR_OF_DAY, 0);
+				cal.set(Calendar.MINUTE, 0);
+				cal.set(Calendar.SECOND, 0);
+				cal.set(Calendar.MILLISECOND, 0);
+				new Timer("catfacts", true).schedule(new TimerTask(){
+					@Override
+					public void run(){
+						if(!alreadycat){
+							alreadycat = true;
+							return;
+						}
+						try{
+							Gson g = new Gson();
+							synchronized(cat){
+								URL web = new URL("http://catfacts-api.appspot.com/api/facts?number=" + cat.size());
+								InputStream in = web.openStream();
+								Facts fat = g.fromJson(IOUtils.toString(in, "utf-8"), Facts.class);
+								in.close();
+								if(fat.success){
+									int index = 0;
+									Iterator<String> i = cat.iterator();
+									while(i.hasNext()){
+										IUser user = bot.getUserByID(i.next());
+										System.out.println(user.getName());
+										bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.facts[index] + ":cat:");
+										index++;
+									}
+								}
+							}
+						}
+						catch(Exception e){
+							e.printStackTrace();
+						}
+					}
+				}, cal.getTime(), 9600000); //1/9 day in ms
+			}
+		}.start();
+	}
+
 	@EventSubscriber
 	public void ready(ReadyEvent e){
-		System.out.println("MSPABOT ONLINE");
+		System.out.println("MSPAL ONLINE");
 		bot.changePresence(false);
 		bot.changeStatus(Status.game(":commands:"));
+//		beginFacting();
 	}
 
 	@EventSubscriber
@@ -167,6 +236,9 @@ public class Mspa{
 	@EventSubscriber
 	public void message(MessageReceivedEvent e){
 		if(e.getMessage().getAuthor().isBot() || e.getMessage() == null || e.getMessage().getContent() == null){
+			return;
+		}
+		if(!(e.getMessage().getChannel() instanceof IPrivateChannel) && !e.getMessage().getChannel().getModifiedPermissions(bot.getOurUser()).contains(Permissions.READ_MESSAGES)){
 			return;
 		}
 		try{
@@ -283,6 +355,12 @@ public class Mspa{
 			if(msg.contains(":deathstare:")){
 				chan.sendFile(new File("./deathstare.png"));
 			}
+			if(msg.contains(":scatman:")){
+				chan.sendMessage("https://www.youtube.com/watch?v=y6oXW_YiV6g");
+			}
+			if(msg.contains(":boi:")){
+				chan.sendFile(new File("./boi.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -301,8 +379,8 @@ public class Mspa{
 						+ "66% Off ---L\n"
 						+ "Manufacturer's Defect ---e\n"
 						+ "DON'T FORGET OUR SPECIAL STOCK!\n"
-						+ "Automatic: ︻┻●═E\n"
-						+ "Pitchfork: ---E---E\n"
+						+ "Automatic ︻┻●═E\n"
+						+ "Pitchfork ---E---E\n"
 						+ "NEW IN STOCK. DIRECTLY FROM LIECHTENSTEIN. EUROPEAN MODELS!\n"
 						+ "The Euro ---€\n"
 						+ "The Pound ---£\n"
@@ -420,7 +498,12 @@ public class Mspa{
 						+ ":keklow: you just wait\n"
 						+ "there's a dynamic kek generator, the keks have won the war. all that's left is death.\n"
 						+ ":ham: it's a meme now\n"
-						+ ":deathstare: for when flowey is your **b e s t f r i e n d**```");
+						+ ":deathstare: for when flowey is your b e s t f r i e n d\n"
+						+ ":info: mspal info\n"
+						+ ":catfacts: most cats adore sardines\n"
+						+ ":hievery1imnew!!!!!!!holdsupsporkmynameiskatybutucancallmet3hPeNgU1NoFd00m!!!!!!!!lol…asucanseeimveryrandom!!!!thatswhyicamehere,2meetrandomppllikeme_…im13yearsold(immature4myagetho!!)ilike2watchinvaderzimw/mygirlfreind(imbiifudontlikeitdealw/it)itsourfavoritetvshow!!!bcuzitsSOOOOrandom!!!!shesrandom2ofcoursebutiwant2meetmorerandomppl=)liketheysaythemorethemerrier!!!!lol…newaysihope2makealotoffreindsheresogivemelotsofcommentses!!!!DOOOOOMMMM!!!!!!!!!!!!!!!!<---mebeinrandomagain_^hehe…toodles!!!!!loveandwaffles,t3hPeNgU1NoFd00m: what you're referring as linux is, in fact, gnu/linux\n"
+						+ ":scatman: john\n"
+						+ ":boi: dat boi is d e a d```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -500,9 +583,11 @@ public class Mspa{
 			else if(msg.equals(":joaje:") && chan.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_MESSAGES)){
 				if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
 					joaje.put(chan.getID(), null);
+					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("joaje disabled");
 				}
 				else{
 					joaje.put(chan.getID(), "");
+					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("joaje enabled");
 				}
 			}
 			else if(msg.equals(":origin:")){
@@ -551,6 +636,30 @@ public class Mspa{
 			}
 			else if(msg.equals(":newcmd:") && e.getMessage().getAuthor().getID().equals(owner)){
 				chan.sendMessage("New command time.");
+			}
+			else if(msg.equals(":info:")){
+				chan.sendMessage("A Discord4J bot made by <@162345113966608394>. Use :commands: for a commandlist.");
+			}
+			else if(msg.equals(":catfacts:")){
+				boolean sub = false;
+				synchronized(cat){
+					if(cat.contains(e.getMessage().getAuthor().getID())){
+						cat.remove(e.getMessage().getAuthor().getID());
+					}
+					else{
+						cat.add(e.getMessage().getAuthor().getID());
+						sub = true;
+					}
+				}
+				if(sub){
+					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("You have been subscribed to :cat: Facts! Every day, you will get a new :cat: fact!");
+				}
+				else{
+					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("You have been unsubscribed to :cat: Facts...");
+				}
+			}
+			else if(msg.equalsIgnoreCase(":hievery1imnew!!!!!!!holdsupsporkmynameiskatybutucancallmet3hPeNgU1NoFd00m!!!!!!!!lol…asucanseeimveryrandom!!!!thatswhyicamehere,2meetrandomppllikeme_…im13yearsold(immature4myagetho!!)ilike2watchinvaderzimw/mygirlfreind(imbiifudontlikeitdealw/it)itsourfavoritetvshow!!!bcuzitsSOOOOrandom!!!!shesrandom2ofcoursebutiwant2meetmorerandomppl=)liketheysaythemorethemerrier!!!!lol…newaysihope2makealotoffreindsheresogivemelotsofcommentses!!!!DOOOOOMMMM!!!!!!!!!!!!!!!!<---mebeinrandomagain_^hehe…toodles!!!!!loveandwaffles,t3hPeNgU1NoFd00m:")){
+				chan.sendFile(new File("./penguin.png"));
 			}
 
 			if(matchkek.find()){
@@ -610,14 +719,23 @@ public class Mspa{
 			oout.writeObject(logs);
 			oout.close();
 			fout.close();
-			FileOutputStream fout2 = new FileOutputStream(new File("./joaje"));
-			ObjectOutputStream oout2 = new ObjectOutputStream(fout2);
-			oout2.writeObject(joaje);
-			oout2.close();
-			fout2.close();
+			fout = new FileOutputStream(new File("./joaje"));
+			oout = new ObjectOutputStream(fout);
+			oout.writeObject(joaje);
+			oout.close();
+			fout.close();
+			fout = new FileOutputStream(new File("./cat"));
+			oout = new ObjectOutputStream(fout);
+			oout.writeObject(cat);
+			oout.close();
+			fout.close();
 		}
 		catch(Exception exc){
 			exc.printStackTrace();
 		}
+	}
+	public class Facts{
+		public String[] facts;
+		public boolean success;
 	}
 }
