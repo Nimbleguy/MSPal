@@ -167,14 +167,15 @@ public class Mspa{
 						InputStream in = web.openStream();
 						Facts fat = g.fromJson(IOUtils.toString(in, "utf-8"), Facts.class);
 						in.close();
-						if(fat.success){
+						if(fat.getSuccess()){
 							int index = 0;
 							Iterator<String> i = cat.iterator();
 							while(i.hasNext()){
 								IUser user = bot.getUserByID(i.next());
-								System.out.println(user.getName());
-								bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.facts[index] + ":cat:");
-								index++;
+								if(user != null){
+									bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.getFacts()[index] + ":cat:");
+									index++;
+								}
 							}
 						}
 					}
@@ -615,7 +616,7 @@ public class Mspa{
 				if(msg.toLowerCase().contains(bot.getOurUser().mention()) || msg.toLowerCase().contains(bot.getOurUser().getID()) || (msg.toLowerCase().contains("mspa")) || msg.equalsIgnoreCase("me")){
 					chan.sendMessage("no");
 				}
-				else if(msg.equalsIgnoreCase("Nomble") || msg.equalsIgnoreCase("Nimble") || msg.contains(owner)){
+				else if(msg.toLowerCase().contains("nomble") || msg.toLowerCase().contains("nimble") || msg.contains(owner)){
 					chan.sendMessage(e.getMessage().getAuthor().mention() + " commited seppuku!");
 				}
 				else if(msg.contains(e.getMessage().getAuthor().getID()) || msg.contains(e.getMessage().getAuthor().getName())){
@@ -749,7 +750,19 @@ public class Mspa{
 		}
 	}
 	public class Facts{
-		public String[] facts;
-		public boolean success;
+		private String[] facts;
+		private boolean success;
+
+		public String[] getFacts(){
+			return facts;
+		}
+		public boolean getSuccess(){
+			return success;
+		}
+
+		@Override
+		public String toString(){
+			return "Facts [facts= " + facts + ", success=" + success + "]";
+		}
 	}
 }
