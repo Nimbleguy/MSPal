@@ -148,46 +148,45 @@ public class Mspa{
 	}
 
 	public void beginFacting(){
-		new Thread() {
+		Calendar cal = Calendar.getInstance();
+		long now = cal.getTimeInMillis();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		long start = cal.getTimeInMillis();
+		long delay = ((long)((now - start) / 9600000) + 1) * 9600000;
+		new Timer("catfacts", true).schedule(new TimerTask(){
+			@Override
 			public void run(){
-				Calendar cal = Calendar.getInstance();
-				cal.set(Calendar.HOUR_OF_DAY, 0);
-				cal.set(Calendar.MINUTE, 0);
-				cal.set(Calendar.SECOND, 0);
-				cal.set(Calendar.MILLISECOND, 0);
-				new Timer("catfacts", true).schedule(new TimerTask(){
-					@Override
-					public void run(){
-						if(!alreadycat){
-							alreadycat = true;
-							return;
-						}
-						try{
-							Gson g = new Gson();
-							synchronized(cat){
-								URL web = new URL("http://catfacts-api.appspot.com/api/facts?number=" + cat.size());
-								InputStream in = web.openStream();
-								Facts fat = g.fromJson(IOUtils.toString(in, "utf-8"), Facts.class);
-								in.close();
-								if(fat.success){
-									int index = 0;
-									Iterator<String> i = cat.iterator();
-									while(i.hasNext()){
-										IUser user = bot.getUserByID(i.next());
-										System.out.println(user.getName());
-										bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.facts[index] + ":cat:");
-										index++;
-									}
-								}
+				if(!alreadycat){
+					alreadycat = true;
+					return;
+				}
+				try{
+					Gson g = new Gson();
+					synchronized(cat){
+						URL web = new URL("http://catfacts-api.appspot.com/api/facts?number=" + cat.size());
+						InputStream in = web.openStream();
+						Facts fat = g.fromJson(IOUtils.toString(in, "utf-8"), Facts.class);
+						in.close();
+						if(fat.success){
+							int index = 0;
+							Iterator<String> i = cat.iterator();
+							while(i.hasNext()){
+								IUser user = bot.getUserByID(i.next());
+								System.out.println(user.getName());
+								bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.facts[index] + ":cat:");
+								index++;
 							}
 						}
-						catch(Exception e){
-							e.printStackTrace();
-						}
 					}
-				}, cal.getTime(), 9600000); //1/9 day in ms
+				}
+				catch(Exception e){
+					e.printStackTrace();
+				}
 			}
-		}.start();
+		}, delay, 9600000); //1/9 days in ms
 	}
 
 	@EventSubscriber
@@ -195,7 +194,7 @@ public class Mspa{
 		System.out.println("MSPAL ONLINE");
 		bot.changePresence(false);
 		bot.changeStatus(Status.game(":commands:"));
-//		beginFacting();
+		beginFacting();
 	}
 
 	@EventSubscriber
@@ -361,6 +360,15 @@ public class Mspa{
 			if(msg.contains(":boi:")){
 				chan.sendFile(new File("./boi.png"));
 			}
+			if(msg.contains(":squid:")){
+				chan.sendFile(new File("./squid.png"));
+			}
+			if(msg.contains(":facepalm:")){
+				chan.sendFile(new File("./facepalm.png"));
+			}
+			if(msg.contains(":rules:")){
+				chan.sendFile(new File("./rules.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -466,6 +474,12 @@ public class Mspa{
 				if(msg.toLowerCase().contains("give") && msg.toLowerCase().contains("lemons")){
 					chan.sendMessage("Don’t make lemonade. Make life take the lemons back! Get mad! I don’t want your damn lemons, what the hell am I supposed to do with these? Demand to see life’s manager! Make life rue the day it thought it could give Cave Johnson lemons! Do you know who I am? I’m the man who’s gonna burn your house down! With the lemons! I’m gonna get my engineers to invent a combustible lemon that burns your house down!");
 				}
+				if(msg.toLowerCase().contains("interject")){
+					chan.sendMessage("I'd just like to interject for a moment. What you’re referring to as Linux, is in fact, GNU/Linux, or as I’ve recently taken to calling it, GNU plus Linux. Linux is not an operating system unto itself, but rather another free component of a fully functioning GNU system made useful by the GNU corelibs, shell utilities and vital system components comprising a full OS as defined by POSIX. Many computer users run a modified version of the GNU system every day, without realizing it. Through a peculiar turn of events, the version of GNU which is widely used today is often called “Linux”, and many of its users are not aware that it is basically the GNU system, developed by the GNU Project. There really is a Linux, and these people are using it, but it is just a part of the system they use. Linux is the kernel: the program in the system that allocates the machine’s resources to the other programs that you run. The kernel is an essential part of an operating system, but useless by itself; it can only function in the context of a complete operating system. Linux is normally used in combination with the GNU operating system: the whole system is basically GNU with Linux added, or GNU/Linux. All the so-called “Linux” distributions are really distributions of GNU/Linux.");
+				}
+				if(msg.toLowerCase().contains("arstotzka")){
+					chan.sendMessage("Glory to Arstotzka!");
+				}
 			}
 
 			if(msg.equals(":commands:")){
@@ -503,7 +517,10 @@ public class Mspa{
 						+ ":catfacts: most cats adore sardines\n"
 						+ ":hievery1imnew!!!!!!!holdsupsporkmynameiskatybutucancallmet3hPeNgU1NoFd00m!!!!!!!!lol…asucanseeimveryrandom!!!!thatswhyicamehere,2meetrandomppllikeme_…im13yearsold(immature4myagetho!!)ilike2watchinvaderzimw/mygirlfreind(imbiifudontlikeitdealw/it)itsourfavoritetvshow!!!bcuzitsSOOOOrandom!!!!shesrandom2ofcoursebutiwant2meetmorerandomppl=)liketheysaythemorethemerrier!!!!lol…newaysihope2makealotoffreindsheresogivemelotsofcommentses!!!!DOOOOOMMMM!!!!!!!!!!!!!!!!<---mebeinrandomagain_^hehe…toodles!!!!!loveandwaffles,t3hPeNgU1NoFd00m: what you're referring as linux is, in fact, gnu/linux\n"
 						+ ":scatman: john\n"
-						+ ":boi: dat boi is d e a d```");
+						+ ":boi: dat boi is d e a d\n"
+						+ ":facepalm: at least it isn't death\n"
+						+ ":squid: you're a kid now\n"
+						+ ":rules: abide by them or p e r i s h```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
