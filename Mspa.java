@@ -155,14 +155,11 @@ public class Mspa{
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		long start = cal.getTimeInMillis();
-		long delay = ((long)((now - start) / 9600000) + 1) * 9600000;
+		//Acts on UTC.
+		long delay = 43200000 - ((now - start) % 43200000);
 		new Timer("catfacts", true).schedule(new TimerTask(){
 			@Override
 			public void run(){
-				if(!alreadycat){
-					alreadycat = true;
-					return;
-				}
 				try{
 					Gson g = new Gson();
 					synchronized(cat){
@@ -186,7 +183,7 @@ public class Mspa{
 					e.printStackTrace();
 				}
 			}
-		}, delay, 9600000); //1/9 days in ms
+		}, delay, 43200000); //1/2 day in ms
 	}
 
 	@EventSubscriber
