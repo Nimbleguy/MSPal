@@ -187,12 +187,30 @@ public class Mspa{
 		}, delay, 43200000); //1/2 day in ms
 	}
 
+	public void watchdog(){
+		new Timer("watchdog", true).schedule(new TimerTask() {
+			@Override
+			public void run(){
+				try{
+					if(!bot.isReady()){
+						System.exit(1);
+					}
+				}
+				catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+
+		}, 60000, 60000);
+	}
+
 	@EventSubscriber
 	public void ready(ReadyEvent e){
 		System.out.println("MSPAL ONLINE");
 		bot.changePresence(false);
 		bot.changeStatus(Status.game(":commands:"));
 		beginFacting();
+		watchdog();
 	}
 
 	@EventSubscriber
@@ -367,6 +385,15 @@ public class Mspa{
 			if(msg.contains(":rules:")){
 				chan.sendFile(new File("./rules.png"));
 			}
+			if(msg.contains(":fun:")){
+				chan.sendFile(new File("./fun.png"));
+			}
+			if(msg.contains(":salt:")){
+				chan.sendFile(new File("./salt.png"));
+			}
+			if(msg.contains(":kappa:")){
+				chan.sendFile(new File("./kappa.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -518,7 +545,10 @@ public class Mspa{
 						+ ":boi: dat boi is d e a d\n"
 						+ ":facepalm: at least it isn't death\n"
 						+ ":squid: you're a kid now\n"
-						+ ":rules: abide by them or p e r i s h```");
+						+ ":rules: abide by them or p e r i s h\n"
+						+ ":fun: u is for uranium bombs\n"
+						+ ":salt: square, armrest, and saltshaker\n"
+						+ ":kappa: twitch installs mspal```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"

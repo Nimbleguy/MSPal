@@ -27,7 +27,7 @@ run : build
 	java -cp ".:libs/*" Mspa $(shell cat auth.txt)
 
 clean :
-	rm Mspa.class ivy.jar libs/*
+	rm Msp*.class ivy.jar libs/*
 	rmdir libs
 
 .PHONY : all build dep run clean
