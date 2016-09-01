@@ -394,6 +394,9 @@ public class Mspa{
 			if(msg.contains(":kappa:")){
 				chan.sendFile(new File("./kappa.png"));
 			}
+			if(msg.contains(":shame:")){
+				chan.sendMessage("To the Shame Corner with <@" + e.getMessage().getAuthor().getID() + ">.");
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -408,12 +411,14 @@ public class Mspa{
 						+ "Left Handed Ǝ---\n"
 						+ "Fancy ---{\n"
 						+ "WE EVEN HAVE DISCOUNTED CLEARENCE FORKS!\n"
+						+ "Forked Price -E\n"
 						+ "33% Off ---F\n"
 						+ "66% Off ---L\n"
 						+ "Manufacturer's Defect ---e\n"
 						+ "DON'T FORGET OUR SPECIAL STOCK!\n"
 						+ "Automatic ︻┻●═E\n"
 						+ "Pitchfork ---E---E\n"
+						+ "Boring [REDACTED]\n"
 						+ "NEW IN STOCK. DIRECTLY FROM LIECHTENSTEIN. EUROPEAN MODELS!\n"
 						+ "The Euro ---€\n"
 						+ "The Pound ---£\n"
@@ -455,6 +460,12 @@ public class Mspa{
 				}
 				else if(buy.equalsIgnoreCase("Pitchfork")){
 					chan.sendMessage("---E---E");
+				}
+				else if(buy.equalsIgnoreCase("Boring")){
+					chan.sendFile(new File("boring.png"));
+				}
+				else if(buy.equalsIgnoreCase("Forked Price")){
+					chan.sendMessage("-E");
 				}
 				else{
 					chan.sendMessage("We don't have that pitchfork in stock.");
@@ -548,7 +559,8 @@ public class Mspa{
 						+ ":rules: abide by them or p e r i s h\n"
 						+ ":fun: u is for uranium bombs\n"
 						+ ":salt: square, armrest, and saltshaker\n"
-						+ ":kappa: twitch installs mspal```");
+						+ ":kappa: twitch installs mspal\n"
+						+ ":shame: the corner of shame```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"

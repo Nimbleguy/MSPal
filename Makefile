@@ -24,7 +24,7 @@ Mspa.class : Mspa.java
 	javac -cp ".:libs/*" Mspa.java
 
 run : build
-	java -cp ".:libs/*" Mspa $(shell cat auth.txt)
+	while true; do java -cp ".:libs/*" Mspa $(shell cat auth.txt); done
 
 clean :
 	rm Msp*.class ivy.jar libs/*
