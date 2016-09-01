@@ -1,3 +1,7 @@
 A discord bot using Discord4J.
-You can run make to run the bot.
+Run make to start the bot.
+You need Java, GNU Coreutils, Unzip, and GNU Make installed to run it.
+
+
+
 Only the bot token is required in auth.txt.
