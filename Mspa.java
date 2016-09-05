@@ -64,12 +64,11 @@ public class Mspa{
 	public static HashMap<String, String> joaje;
 
 	public static List<String> cat;
+	public static List<String> dog;
 
 	public static ChatterBotSession chat;
 
 	public static Pattern keks = Pattern.compile(":((top)|(low)|k|e|k)+:");
-
-	public static boolean alreadycat = false;
 
 	public Mspa(String token, String own, String bin){
 		try{
@@ -78,38 +77,49 @@ public class Mspa{
 			chat = new ChatterBotFactory().create(ChatterBotType.CLEVERBOT).createSession();
 			bot = new ClientBuilder().withToken(token).login();
 			bot.getDispatcher().registerListener(this);
-			File map = new File("./logs");
-			if(map.exists()){
-				FileInputStream fin = new FileInputStream(map);
+			File f = new File("./logs");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
 				ObjectInputStream oin = new ObjectInputStream(fin);
 				logs = (HashMap<String, String[]>)oin.readObject();
 				oin.close();
 				fin.close();
 			}
 			else{
-				map.createNewFile();
+				f.createNewFile();
 			}
-			File j = new File("./joaje");
-			if(j.exists()){
-				FileInputStream fin = new FileInputStream(j);
+			f = new File("./joaje");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
 				ObjectInputStream oin = new ObjectInputStream(fin);
 				joaje = (HashMap<String, String>)oin.readObject();
 				oin.close();
 				fin.close();
 			}
 			else{
-				j.createNewFile();
+				f.createNewFile();
 			}
-			File c = new File("./cat");
-			if(c.exists()){
-				FileInputStream fin = new FileInputStream(c);
+			f = new File("./cat");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
 				ObjectInputStream oin = new ObjectInputStream(fin);
 				cat = Collections.synchronizedList((List<String>)oin.readObject());
 				oin.close();
 				fin.close();
 			}
 			else{
-				c.createNewFile();
+				f.createNewFile();
+			}
+			f = new File("./dog");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
+				ObjectInputStream oin = new ObjectInputStream(fin);
+				dog = Collections.synchronizedList((List<String>)oin.readObject());
+				oin.close();
+				fin.close();
+			}
+			else{
+				f.createNewFile();
 			}
 		}
 		catch(Exception e){
@@ -123,6 +133,9 @@ public class Mspa{
 		}
 		if(cat == null){
 			cat = Collections.synchronizedList(new ArrayList<String>());
+		}
+		if(dog == null){
+			dog = Collections.synchronizedList(new ArrayList<String>());
 		}
 	}
 
@@ -175,6 +188,20 @@ public class Mspa{
 								if(user != null){
 									bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.getFacts()[index] + ":cat:");
 									index++;
+								}
+							}
+						}
+					}
+					synchronized(dog){
+						Iterator<String> i = dog.iterator();
+						while(i.hasNext()){
+							IUser user = bot.getUserByID(i.next());
+							if(user != null){
+								if(new Random().nextInt(2) == 0){
+									bot.getOrCreatePMChannel(user).sendMessage(":dog: https://www.youtube.com/watch?v=8veTn8YZ0_E :dog:");
+								}
+								else{
+									bot.getOrCreatePMChannel(user).sendMessage(":dog: https://www.youtube.com/watch?v=E7WD3sxG8j0 :dog:");
 								}
 							}
 						}
@@ -346,7 +373,7 @@ public class Mspa{
 			if(msg.contains(":haigb:")){
 				chan.sendFile(new File("./joaje.png"));
 			}
-			if(msg.contains(":su:")){
+			if(msg.contains(":su:") || msg.contains(":Steven:")){
 				chan.sendFile(new File("./su.png"));
 			}
 //			if(msg.contains(":lowkek:")){
@@ -376,10 +403,10 @@ public class Mspa{
 			if(msg.contains(":boi:")){
 				chan.sendFile(new File("./boi.png"));
 			}
-			if(msg.contains(":squid:")){
-				chan.sendFile(new File("./squid.png"));
+			if(msg.contains(":squids:")){
+				chan.sendFile(new File("./squids.png"));
 			}
-			if(msg.contains(":facepalm:")){
+			if(msg.contains(":faceplam:")){
 				chan.sendFile(new File("./facepalm.png"));
 			}
 			if(msg.contains(":rules:")){
@@ -554,13 +581,15 @@ public class Mspa{
 						+ ":hievery1imnew!!!!!!!holdsupsporkmynameiskatybutucancallmet3hPeNgU1NoFd00m!!!!!!!!lol…asucanseeimveryrandom!!!!thatswhyicamehere,2meetrandomppllikeme_…im13yearsold(immature4myagetho!!)ilike2watchinvaderzimw/mygirlfreind(imbiifudontlikeitdealw/it)itsourfavoritetvshow!!!bcuzitsSOOOOrandom!!!!shesrandom2ofcoursebutiwant2meetmorerandomppl=)liketheysaythemorethemerrier!!!!lol…newaysihope2makealotoffreindsheresogivemelotsofcommentses!!!!DOOOOOMMMM!!!!!!!!!!!!!!!!<---mebeinrandomagain_^hehe…toodles!!!!!loveandwaffles,t3hPeNgU1NoFd00m: what you're referring as linux is, in fact, gnu/linux\n"
 						+ ":scatman: john\n"
 						+ ":boi: dat boi is d e a d\n"
-						+ ":facepalm: at least it isn't death\n"
-						+ ":squid: you're a kid now\n"
+						+ ":faceplam: at least it isn't death\n"
+						+ ":squids: you're a kid now\n"
 						+ ":rules: abide by them or p e r i s h\n"
 						+ ":fun: u is for uranium bombs\n"
 						+ ":salt: square, armrest, and saltshaker\n"
 						+ ":kappa: twitch installs mspal\n"
-						+ ":shame: the corner of shame```");
+						+ ":shame: the corner of shame\n"
+						+ ":dogfacts: dogs like to absorb artifacts\n"
+						+ ":whoa: f u n k y f r e s h```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -655,22 +684,23 @@ public class Mspa{
 				chan.sendMessage(lines.get(r));
 			}
 			else if(msg.startsWith(":murder: ")){
+				int sodo = new Random().nextInt(25);
 				if(msg.toLowerCase().contains(bot.getOurUser().mention()) || msg.toLowerCase().contains(bot.getOurUser().getID()) || (msg.toLowerCase().contains("mspa")) || msg.equalsIgnoreCase("me")){
 					chan.sendMessage("no");
 				}
 				else if(msg.toLowerCase().contains("nomble") || msg.toLowerCase().contains("nimble") || msg.contains(owner)){
-					chan.sendMessage(e.getMessage().getAuthor().mention() + " commited seppuku!");
+					chan.sendMessage(e.getMessage().getAuthor().mention() + " commited " + ((sodo == 0) ? "sudoku!" : "seppuku!"));
 				}
 				else if(msg.contains(e.getMessage().getAuthor().getID()) || msg.contains(e.getMessage().getAuthor().getName())){
-					chan.sendMessage(e.getMessage().getAuthor().mention() + " commited seppuku!");
+					chan.sendMessage(e.getMessage().getAuthor().mention() + " commited " + ((sodo == 0) ? "sudoku!" : "seppuku!"));
 				}
 				else{
 					if(msg.contains("208089544816459777")){
 						chan.sendMessage(e.getMessage().getAuthor().mention() + " viciously tortured " + msg.replace(":murder: ", "") + " to death!");
 					}
 					else{
-						int rand = new Random().nextInt(2);
-						if(rand == 0){
+						int rand = new Random().nextInt(5);
+						if(rand != 0){
 							chan.sendMessage(e.getMessage().getAuthor().mention() + " brutally killed " + msg.replace(":murder: ", "") + "!");
 						}
 						else{
@@ -718,7 +748,40 @@ public class Mspa{
 			else if(msg.equalsIgnoreCase(":hievery1imnew!!!!!!!holdsupsporkmynameiskatybutucancallmet3hPeNgU1NoFd00m!!!!!!!!lol…asucanseeimveryrandom!!!!thatswhyicamehere,2meetrandomppllikeme_…im13yearsold(immature4myagetho!!)ilike2watchinvaderzimw/mygirlfreind(imbiifudontlikeitdealw/it)itsourfavoritetvshow!!!bcuzitsSOOOOrandom!!!!shesrandom2ofcoursebutiwant2meetmorerandomppl=)liketheysaythemorethemerrier!!!!lol…newaysihope2makealotoffreindsheresogivemelotsofcommentses!!!!DOOOOOMMMM!!!!!!!!!!!!!!!!<---mebeinrandomagain_^hehe…toodles!!!!!loveandwaffles,t3hPeNgU1NoFd00m:")){
 				chan.sendFile(new File("./penguin.png"));
 			}
-
+			else if(msg.equals(":dogfacts:")){
+				boolean sub = false;
+				synchronized(dog){
+					if(dog.contains(e.getMessage().getAuthor().getID())){
+						dog.remove(e.getMessage().getAuthor().getID());
+					}
+					else{
+						dog.add(e.getMessage().getAuthor().getID());
+						sub = true;
+					}
+				}
+				if(sub){
+					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("You have been subscribed to :dog: Facts! Every day, you will get a new :dog: fact!");
+				}
+				else{
+					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("You have been unsubscribed to :dog: Facts...");
+				}
+			}
+			else if(msg.startsWith(":whoa: ")){
+				String s = msg.replace(":whoa: ", "");
+				String fir = "";
+				String las = "";
+				boolean first = false;
+				for(char c : s.toCharArray()){
+					fir += c + " ";
+					if(first){
+						las += "\n" + c;
+					}
+					else{
+						first = true;
+					}
+				}
+				chan.sendMessage("```" + fir + las + "```");
+			}
 			if(matchkek.find()){
 				String keks = matchkek.group().replace(":", "");
 				int ek = StringUtils.countMatches(keks, "ek");
@@ -784,6 +847,11 @@ public class Mspa{
 			fout = new FileOutputStream(new File("./cat"));
 			oout = new ObjectOutputStream(fout);
 			oout.writeObject(cat);
+			oout.close();
+			fout.close();
+			fout = new FileOutputStream(new File("./dog"));
+			oout = new ObjectOutputStream(fout);
+			oout.writeObject(dog);
 			oout.close();
 			fout.close();
 		}
