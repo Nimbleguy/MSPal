@@ -1,4 +1,4 @@
-ARTCORD=com.github.austinv11 Discord4J 2.5.4
+ARTCORD=com.github.austinv11 Discord4J 2.6.0
 ARTBIN=com.github.kennedyoliveira pastebin4j 1.2.0
 ARTCLEV=ca.pjer chatter-bot-api 1.4.2
 

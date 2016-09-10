@@ -70,6 +70,8 @@ public class Mspa{
 
 	public static Pattern keks = Pattern.compile(":((top)|(low)|k|e|k)+:");
 
+	public static HashMap<String, List<String>> bans;
+
 	public Mspa(String token, String own, String bin){
 		try{
 			owner = own;
@@ -121,6 +123,17 @@ public class Mspa{
 			else{
 				f.createNewFile();
 			}
+			f = new File("./bans");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
+				ObjectInputStream oin = new ObjectInputStream(fin);
+				bans = (HashMap<String, List<String>>)oin.readObject();
+				oin.close();
+				fin.close();
+			}
+			else{
+				f.createNewFile();
+			}
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -136,6 +149,9 @@ public class Mspa{
 		}
 		if(dog == null){
 			dog = Collections.synchronizedList(new ArrayList<String>());
+		}
+		if(bans == null){
+			bans = new HashMap<String, List<String>>();
 		}
 	}
 
@@ -283,6 +299,9 @@ public class Mspa{
 		if(!(e.getMessage().getChannel() instanceof IPrivateChannel) && !e.getMessage().getChannel().getModifiedPermissions(bot.getOurUser()).contains(Permissions.READ_MESSAGES)){
 			return;
 		}
+		if(bans.get(e.getMessage().getChannel().getID()) != null && bans.get(e.getMessage().getChannel().getID()).contains(e.getMessage().getAuthor().getID())){
+			return;
+		}
 		try{
 			String msg = e.getMessage().getContent();
 			IChannel chan = e.getMessage().getChannel();
@@ -424,6 +443,18 @@ public class Mspa{
 			if(msg.contains(":shame:")){
 				chan.sendMessage("To the Shame Corner with <@" + e.getMessage().getAuthor().getID() + ">.");
 			}
+			if(msg.contains(":tom:")){
+				chan.sendFile(new File("./tom.png"));
+			}
+			if(msg.contains(":fear:")){
+				chan.sendFile(new File("./fear.png"));
+			}
+			if(msg.contains(":pain:")){
+				chan.sendFile(new File("./pain.png"));
+			}
+			if(msg.contains(":jerry:")){
+				chan.sendFile(new File("./jerry.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -511,6 +542,9 @@ public class Mspa{
 				if(msg.contains(":mimeowl:")){
 					chan.sendMessage("**:/: O) /_\\\\ (O :\\:**");
 				}
+				if(msg.contains(":pls:")){
+					chan.sendFile(new File("./pls.png"));
+				}
 				if(msg.equals(":themage:")){
 					FileInputStream fin = new FileInputStream(new File("./themage"));
                                 	List<String> lines = IOUtils.readLines(fin, "utf-8");
@@ -542,6 +576,9 @@ public class Mspa{
 				}
 				if(msg.toLowerCase().contains("arstotzka")){
 					chan.sendMessage("Glory to Arstotzka!");
+				}
+				if(msg.toLowerCase().contains("w h a t w e r e a l l y a r e")){
+					chan.sendMessage("https://www.youtube.com/watch?v=yOr9fztiiT8");
 				}
 			}
 
@@ -588,14 +625,20 @@ public class Mspa{
 						+ ":salt: square, armrest, and saltshaker\n"
 						+ ":kappa: twitch installs mspal\n"
 						+ ":shame: the corner of shame\n"
-						+ ":dogfacts: dogs like to absorb artifacts\n"
-						+ ":whoa: f u n k y f r e s h```");
+						+ ":dogfacts: dogs like to absorb artifacts```");
+				pm.sendMessage("```:whoa: f u n k y f r e s h\n"
+						+ ":tom: wanna have a bad tom\n"
+						+ ":fear: s r p e l o\n"
+						+ ":pain: o l e p r s\n"
+						+ ":jerry: and jerry came too\n"
+						+ ":ignore: makes the bot userist, only works with mentions```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
 							+ ":themage: тхе маге\n"
 							+ ":kerpranked: with pd kerprank\n"
-							+ ":mimeowl: hail, the most fearsome of conflict shards and ██████. the end of ends ever looms.```");
+							+ ":mimeowl: hail, the most fearsome of conflict shards and ██████. the end of ends ever looms.\n"
+							+ ":pls: the edits```");
 				}
 				if(!(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
 					pm.sendMessage("```:emily: the dream```");
@@ -782,6 +825,29 @@ public class Mspa{
 				}
 				chan.sendMessage("```" + fir + las + "```");
 			}
+			else if(msg.startsWith(":ignore: <@") && chan.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_MESSAGES)){
+				String s = msg.replace(":ignore: <@", "").replace(">", "").replace("!", "");
+				if(bans.get(e.getMessage().getChannel().getID()) != null){
+					if(bans.get(e.getMessage().getChannel().getID()).contains(s)){
+						List<String> li = bans.get(e.getMessage().getChannel().getID());
+						li.remove(s);
+						bans.put(e.getMessage().getChannel().getID(), li);
+						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("<@" + s + "> has been unblocked!");
+					}
+					else{
+						List<String> li = bans.get(e.getMessage().getChannel().getID());
+						li.add(s);
+						bans.put(e.getMessage().getChannel().getID(), li);
+						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("<@" + s + "> has been locked from using my commands!");
+					}
+				}
+				else{
+					List<String> li = new ArrayList<String>();
+					li.add(s);
+					bans.put(e.getMessage().getChannel().getID(), li);
+					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("<@" + s + "> has been locked from using my commands!");
+				}
+			}
 			if(matchkek.find()){
 				String keks = matchkek.group().replace(":", "");
 				int ek = StringUtils.countMatches(keks, "ek");
@@ -852,6 +918,11 @@ public class Mspa{
 			fout = new FileOutputStream(new File("./dog"));
 			oout = new ObjectOutputStream(fout);
 			oout.writeObject(dog);
+			oout.close();
+			fout.close();
+			fout = new FileOutputStream(new File("./bans"));
+			oout = new ObjectOutputStream(fout);
+			oout.writeObject(bans);
 			oout.close();
 			fout.close();
 		}
