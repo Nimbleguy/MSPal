@@ -455,6 +455,10 @@ public class Mspa{
 			if(msg.contains(":jerry:")){
 				chan.sendFile(new File("./jerry.png"));
 			}
+			if(msg.contains(":trump:")){
+				int x = new Random().nextInt(5)+1;
+				chan.sendFile(new File("./trump" + x + ".png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
