@@ -200,10 +200,15 @@ public class Mspa{
 							int index = 0;
 							Iterator<String> i = cat.iterator();
 							while(i.hasNext()){
-								IUser user = bot.getUserByID(i.next());
-								if(user != null){
-									bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.getFacts()[index] + ":cat:");
-									index++;
+								try{
+									IUser user = bot.getUserByID(i.next());
+									if(user != null){
+										bot.getOrCreatePMChannel(user).sendMessage(":cat:" + fat.getFacts()[index] + ":cat:");
+										index++;
+									}
+								}
+								catch(Exception e){
+									e.printStackTrace();
 								}
 							}
 						}
@@ -213,11 +218,16 @@ public class Mspa{
 						while(i.hasNext()){
 							IUser user = bot.getUserByID(i.next());
 							if(user != null){
-								if(new Random().nextInt(2) == 0){
-									bot.getOrCreatePMChannel(user).sendMessage(":dog: https://www.youtube.com/watch?v=8veTn8YZ0_E :dog:");
+								try{
+									if(new Random().nextInt(2) == 0){
+										bot.getOrCreatePMChannel(user).sendMessage(":dog: https://www.youtube.com/watch?v=8veTn8YZ0_E :dog:");
+									}
+									else{
+										bot.getOrCreatePMChannel(user).sendMessage(":dog: https://www.youtube.com/watch?v=E7WD3sxG8j0 :dog:");
+									}
 								}
-								else{
-									bot.getOrCreatePMChannel(user).sendMessage(":dog: https://www.youtube.com/watch?v=E7WD3sxG8j0 :dog:");
+								catch(Exception e){
+									e.printStackTrace();
 								}
 							}
 						}
@@ -380,7 +390,7 @@ public class Mspa{
 //			if(msg.contains(":topkek:") || msg.contains(":kek:")){
 //				chan.sendFile(new File("./kek.png"));
 //			}
-			if(msg.contains(":emily") && !(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
+			if(msg.contains(":emily:") && !(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
 				chan.sendFile(new File("./emily.png"));
 			}
 			if(msg.contains(":marriage:")){
@@ -458,6 +468,25 @@ public class Mspa{
 			if(msg.contains(":trump:")){
 				int x = new Random().nextInt(5)+1;
 				chan.sendFile(new File("./trump" + x + ".png"));
+			}
+			if(msg.contains(":ggez:")){
+				FileInputStream fin = new FileInputStream(new File("./ggez"));
+				List<String> lines = IOUtils.readLines(fin, "utf-8");
+				fin.close();
+				int r = new Random().nextInt(lines.size());
+				chan.sendMessage(lines.get(r));
+			}
+			if(msg.contains(":vlambeerVan:")){
+				chan.sendFile(new File("./vlambeerVan.png"));
+			}
+			if(msg.contains(":triggered:")){
+				chan.sendFile(new File("./triggered.png"));
+			}
+			if(msg.contains(":goodpain:")){
+				chan.sendFile(new File("./goodpain.png"));
+			}
+			if(msg.contains(":nightmare:")){
+				chan.sendFile(new File("./nightmare.png"));
 			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
@@ -551,10 +580,10 @@ public class Mspa{
 				}
 				if(msg.equals(":themage:")){
 					FileInputStream fin = new FileInputStream(new File("./themage"));
-                                	List<String> lines = IOUtils.readLines(fin, "utf-8");
-                                	fin.close();
-                                	int r = new Random().nextInt(lines.size());
-                                	chan.sendMessage("At least you didn't say " + lines.get(r) + ".");
+					List<String> lines = IOUtils.readLines(fin, "utf-8");
+					fin.close();
+					int r = new Random().nextInt(lines.size());
+					chan.sendMessage("At least you didn't say " + lines.get(r) + ".");
 				}
 			}
 			if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
@@ -588,7 +617,8 @@ public class Mspa{
 
 			if(msg.equals(":commands:")){
 				IPrivateChannel pm = bot.getOrCreatePMChannel(e.getMessage().getAuthor());
-				pm.sendMessage("```:mspa: mspal\n"
+				pm.sendMessage("```All commands that take parameters are in this format: :command: parameter\n"
+						+ ":mspa: mspal\n"
 						+ ":olliesouty: olly out\n"
 						+ ":journal: >be stan\n"
 						+ ":haigb: >be stan 2: electric boogaloo\n"
@@ -635,7 +665,12 @@ public class Mspa{
 						+ ":fear: s r p e l o\n"
 						+ ":pain: o l e p r s\n"
 						+ ":jerry: and jerry came too\n"
-						+ ":ignore: makes the bot userist, only works with mentions```");
+						+ ":ignore: makes the bot userist, only works with mentions\n"
+						+ ":ggez: its high noon\n"
+						+ ":vlambeerVan: totally not a steam ripoff\n"
+						+ ":triggered: agent powers\n"
+						+ ":goodpain: p e l o s r\n"
+						+ ":nightmare: the pope says enter```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -730,30 +765,17 @@ public class Mspa{
 				int r = new Random().nextInt(lines.size());
 				chan.sendMessage(lines.get(r));
 			}
-			else if(msg.startsWith(":murder: ")){
-				int sodo = new Random().nextInt(25);
-				if(msg.toLowerCase().contains(bot.getOurUser().mention()) || msg.toLowerCase().contains(bot.getOurUser().getID()) || (msg.toLowerCase().contains("mspa")) || msg.equalsIgnoreCase("me")){
-					chan.sendMessage("no");
+			else if(msg.startsWith(":murder: <@") && msg.endsWith(">")){
+				String id = msg.replace(":murder: <@", "").replace("!", "").replace(">", "");
+				if(id.equals("208370334624251906") || id.equals("162345113966608394")){
+					chan.sendMessage("Sorry Dave, but I can't let you do that.");
 				}
-				else if(msg.toLowerCase().contains("nomble") || msg.toLowerCase().contains("nimble") || msg.contains(owner)){
-					chan.sendMessage(e.getMessage().getAuthor().mention() + " commited " + ((sodo == 0) ? "sudoku!" : "seppuku!"));
-				}
-				else if(msg.contains(e.getMessage().getAuthor().getID()) || msg.contains(e.getMessage().getAuthor().getName())){
-					chan.sendMessage(e.getMessage().getAuthor().mention() + " commited " + ((sodo == 0) ? "sudoku!" : "seppuku!"));
+				int r = new Random().nextInt(4);
+				if(r == 2){
+					chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> tripped and accidentally commited seppuku!");
 				}
 				else{
-					if(msg.contains("208089544816459777")){
-						chan.sendMessage(e.getMessage().getAuthor().mention() + " viciously tortured " + msg.replace(":murder: ", "") + " to death!");
-					}
-					else{
-						int rand = new Random().nextInt(5);
-						if(rand != 0){
-							chan.sendMessage(e.getMessage().getAuthor().mention() + " brutally killed " + msg.replace(":murder: ", "") + "!");
-						}
-						else{
-							chan.sendMessage(e.getMessage().getAuthor().mention() + " forced " + msg.replace(":murder: ", "") + " to listen to Yakety Sax until they went insane and died.");
-						}
-					}
+					chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> viciously murdered @<" + id + ">!");
 				}
 			}
 			else if(msg.equals(":zodiac:")){
