@@ -488,6 +488,9 @@ public class Mspa{
 			if(msg.contains(":nightmare:")){
 				chan.sendFile(new File("./nightmare.png"));
 			}
+			if(msg.contains(":objection:")){
+				chan.sendFile(new File("./objection.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -670,7 +673,8 @@ public class Mspa{
 						+ ":vlambeerVan: totally not a steam ripoff\n"
 						+ ":triggered: agent powers\n"
 						+ ":goodpain: p e l o s r\n"
-						+ ":nightmare: the pope says enter```");
+						+ ":nightmare: the pope says enter\n"
+						+ ":objection: overruled```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -775,7 +779,7 @@ public class Mspa{
 					chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> tripped and accidentally commited seppuku!");
 				}
 				else{
-					chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> viciously murdered @<" + id + ">!");
+					chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> viciously murdered <@" + id + ">!");
 				}
 			}
 			else if(msg.equals(":zodiac:")){
