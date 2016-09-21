@@ -491,6 +491,9 @@ public class Mspa{
 			if(msg.contains(":objection:")){
 				chan.sendFile(new File("./objection.png"));
 			}
+			if(msg.contains(":both:")){
+				chan.sendFile(new File("./both.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -513,6 +516,7 @@ public class Mspa{
 						+ "Automatic ︻┻●═E\n"
 						+ "Pitchfork ---E---E\n"
 						+ "Boring [REDACTED]\n"
+						+ "Uber [DATA EXPUNGED]\n"
 						+ "NEW IN STOCK. DIRECTLY FROM LIECHTENSTEIN. EUROPEAN MODELS!\n"
 						+ "The Euro ---€\n"
 						+ "The Pound ---£\n"
@@ -557,6 +561,9 @@ public class Mspa{
 				}
 				else if(buy.equalsIgnoreCase("Boring")){
 					chan.sendFile(new File("boring.png"));
+				}
+				else if(buy.equalsIgnoreCase("Uber")){
+					chan.sendMessage("```                 /E<>---\n<⊙============<{|⊙E<>---\n                 \\E<>---```");
 				}
 				else if(buy.equalsIgnoreCase("Forked Price")){
 					chan.sendMessage("-E");
@@ -674,7 +681,8 @@ public class Mspa{
 						+ ":triggered: agent powers\n"
 						+ ":goodpain: p e l o s r\n"
 						+ ":nightmare: the pope says enter\n"
-						+ ":objection: overruled```");
+						+ ":objection: overruled\n"
+						+ ":both: mexicans```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -769,17 +777,24 @@ public class Mspa{
 				int r = new Random().nextInt(lines.size());
 				chan.sendMessage(lines.get(r));
 			}
-			else if(msg.startsWith(":murder: <@") && msg.endsWith(">")){
-				String id = msg.replace(":murder: <@", "").replace("!", "").replace(">", "");
-				if(id.equals("208370334624251906") || id.equals("162345113966608394")){
+			else if(msg.startsWith(":murder: ")){
+				String muda = msg.replace(":murder: ", "");
+				if(muda.contains("208370334624251906") || muda.contains("162345113966608394")){
 					chan.sendMessage("Sorry Dave, but I can't let you do that.");
 				}
-				int r = new Random().nextInt(4);
-				if(r == 2){
-					chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> tripped and accidentally commited seppuku!");
-				}
 				else{
-					chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> viciously murdered <@" + id + ">!");
+					if(muda.contains(e.getMessage().getAuthor().getID()) || muda.contains(e.getMessage().getAuthor().getName())){
+						chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> did not reach the Nuclear Throne!");
+					}
+					else{
+						int r = new Random().nextInt(4);
+						if(r == 2){
+							chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> tripped and accidentally commited seppuku!");
+						}
+						else{
+							chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> viciously murdered " + muda + "!");
+						}
+					}
 				}
 			}
 			else if(msg.equals(":zodiac:")){
