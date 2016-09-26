@@ -494,6 +494,9 @@ public class Mspa{
 			if(msg.contains(":both:")){
 				chan.sendFile(new File("./both.png"));
 			}
+			if(msg.contains(":dipper:")){
+				chan.sendFile(new File("./dipper.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -587,6 +590,12 @@ public class Mspa{
 				}
 				if(msg.contains(":pls:")){
 					chan.sendFile(new File("./pls.png"));
+				}
+				if(msg.contains(":why:")){
+					chan.sendFile(new File("./why.png"));
+				}
+				if(msg.contains(":doptime:")){
+					chan.sendMessage("It's Doptime! with <@" + e.getMessage().getAuthor().getID() + ">!");
 				}
 				if(msg.equals(":themage:")){
 					FileInputStream fin = new FileInputStream(new File("./themage"));
@@ -682,14 +691,16 @@ public class Mspa{
 						+ ":goodpain: p e l o s r\n"
 						+ ":nightmare: the pope says enter\n"
 						+ ":objection: overruled\n"
-						+ ":both: mexicans```");
+						+ ":both: mexicans\n"
+						+ ":dipper: green mario```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
 							+ ":themage: тхе маге\n"
 							+ ":kerpranked: with pd kerprank\n"
 							+ ":mimeowl: hail, the most fearsome of conflict shards and ██████. the end of ends ever looms.\n"
-							+ ":pls: the edits```");
+							+ ":pls: the edits\n"
+							+ ":why: no rule34 please```");
 				}
 				if(!(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
 					pm.sendMessage("```:emily: the dream```");
@@ -892,6 +903,36 @@ public class Mspa{
 					bans.put(e.getMessage().getChannel().getID(), li);
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("<@" + s + "> has been locked from using my commands!");
 				}
+			}
+			else if(msg.startsWith(":toguz: ")){
+				String s = msg.replace(":toguz: ", "");
+				String key = "ɯuoʌɑɒɸβθzʒʝxɣʁʕʢ";
+				String out = "";
+				for(int i = 0; i < s.length(); i++){
+					char c = s.charAt(i);
+					if(c - 'a' > -1 && c - 'a' < key.length()){
+						out += (char)key.toCharArray()[c - 'a'];
+					}
+					else{
+						out += c;
+					}
+				}
+				chan.sendMessage(out);
+			}
+			else if(msg.startsWith(":guzto: ")){
+				String s = msg.replace(":guzto: ", "");
+				String key = "ɯuoʌɑɒɸβθzʒʝxɣʁʕʢ";
+				String out = "";
+				for(int i = 0; i < s.length(); i++){
+					char c = s.charAt(i);
+					if(key.contains(Character.toString(c))){
+						out += (char)('a' + key.indexOf(Character.toString(c)));
+					}
+					else{
+						out += c;
+					}
+				}
+				chan.sendMessage(out);
 			}
 			if(matchkek.find()){
 				String keks = matchkek.group().replace(":", "");
