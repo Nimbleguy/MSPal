@@ -69,8 +69,10 @@ public class Mspa{
 	public static ChatterBotSession chat;
 
 	public static Pattern keks = Pattern.compile(":((top)|(low)|k|e|k)+:");
+	public static Pattern cmdpatban = Pattern.compile(":\\S+?:");
 
 	public static HashMap<String, List<String>> bans;
+	public static HashMap<String, List<String>> cmdban;
 
 	public Mspa(String token, String own, String bin){
 		try{
@@ -134,6 +136,17 @@ public class Mspa{
 			else{
 				f.createNewFile();
 			}
+			f = new File("./cmdban");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
+				ObjectInputStream oin = new ObjectInputStream(fin);
+				cmdban = (HashMap<String, List<String>>)oin.readObject();
+				oin.close();
+				fin.close();
+			}
+			else{
+				f.createNewFile();
+			}
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -152,6 +165,9 @@ public class Mspa{
 		}
 		if(bans == null){
 			bans = new HashMap<String, List<String>>();
+		}
+		if(cmdban == null){
+			cmdban = new HashMap<String, List<String>>();
 		}
 	}
 
@@ -360,6 +376,16 @@ public class Mspa{
 				out.println(e.getMessage().getAuthor().getName() + ": " + msg);
 				out.close();
 				logs.put(chan.getID(), new String[] {info[0], info[1], e.getMessage().getID()});
+			}
+
+			if(cmdban.get(chan.getGuild().getID()) != null){
+				Matcher banmatch = cmdpatban.matcher(msg);
+				while(banmatch.find()){
+					String s = banmatch.group();
+					if(cmdban.get(chan.getGuild().getID()).contains(s)){
+						msg = msg.replaceAll(s, s.replaceAll(":", ""));
+					}
+				}
 			}
 
 			if(msg.equals(":startlog:")){
@@ -692,7 +718,8 @@ public class Mspa{
 						+ ":nightmare: the pope says enter\n"
 						+ ":objection: overruled\n"
 						+ ":both: mexicans\n"
-						+ ":dipper: green mario```");
+						+ ":dipper: green mario\n"
+						+ ":cmdban: per-server disable my commands... using a command```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -934,6 +961,27 @@ public class Mspa{
 				}
 				chan.sendMessage(out);
 			}
+			else if(msg.startsWith(":cmdban: ") && e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.ADMINISTRATOR)){
+				Matcher m = cmdpatban.matcher(msg.replace(":cmdban: ", "")).reset();
+				m.find();
+				String s = m.group();
+				if(!s.contains(":cmdban:")){
+					if(cmdban.get(chan.getGuild().getID()) == null){
+						cmdban.put(chan.getGuild().getID(), new ArrayList<String>());
+					}
+					List<String> l = cmdban.get(chan.getGuild().getID());
+					if(cmdban.get(chan.getGuild().getID()).contains(s)){
+						l.remove(s);
+						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been unbanned!");
+					}
+					else{
+						l.add(s);
+						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been banned!");
+					}
+					cmdban.put(chan.getGuild().getID(), l);
+				}
+			}
+
 			if(matchkek.find()){
 				String keks = matchkek.group().replace(":", "");
 				int ek = StringUtils.countMatches(keks, "ek");
@@ -1009,6 +1057,11 @@ public class Mspa{
 			fout = new FileOutputStream(new File("./bans"));
 			oout = new ObjectOutputStream(fout);
 			oout.writeObject(bans);
+			oout.close();
+			fout.close();
+			fout = new FileOutputStream(new File("./cmdban"));
+			oout = new ObjectOutputStream(fout);
+			oout.writeObject(cmdban);
 			oout.close();
 			fout.close();
 		}
