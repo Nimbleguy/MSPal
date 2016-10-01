@@ -523,6 +523,9 @@ public class Mspa{
 			if(msg.contains(":dipper:")){
 				chan.sendFile(new File("./dipper.png"));
 			}
+			if(msg.contains(":deal:")){
+				chan.sendFile(new File("./deal.png"));
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -623,6 +626,9 @@ public class Mspa{
 				if(msg.contains(":doptime:")){
 					chan.sendMessage("It's Doptime! with <@" + e.getMessage().getAuthor().getID() + ">!");
 				}
+				if(msg.contains(":heavy:")){
+					chan.sendFile(new File("./heavy.png"));
+				}
 				if(msg.equals(":themage:")){
 					FileInputStream fin = new FileInputStream(new File("./themage"));
 					List<String> lines = IOUtils.readLines(fin, "utf-8");
@@ -719,7 +725,8 @@ public class Mspa{
 						+ ":objection: overruled\n"
 						+ ":both: mexicans\n"
 						+ ":dipper: green mario\n"
-						+ ":cmdban: per-server disable my commands... using a command```");
+						+ ":cmdban: per-server disable my commands... using a command"
+						+ ":deal: bill cipher best illuminati```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -727,7 +734,8 @@ public class Mspa{
 							+ ":kerpranked: with pd kerprank\n"
 							+ ":mimeowl: hail, the most fearsome of conflict shards and ██████. the end of ends ever looms.\n"
 							+ ":pls: the edits\n"
-							+ ":why: no rule34 please```");
+							+ ":why: no rule34 please\n"
+							+ ":heavy: fairy godparents```");
 				}
 				if(!(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
 					pm.sendMessage("```:emily: the dream```");
