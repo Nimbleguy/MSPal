@@ -978,7 +978,7 @@ public class Mspa{
 				}
 				chan.sendMessage(out);
 			}
-			else if(msg.startsWith(":cmdban: ") && e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.ADMINISTRATOR) && !(chan instanceof IPrivateChannel)){
+			else if(msg.startsWith(":cmdban: ") && (e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_PERMISSIONS) || e.getMessage().getAuthor().getID().equals(owner)) && !(chan instanceof IPrivateChannel)){
 				Matcher m = cmdpatban.matcher(msg.replace(":cmdban: ", "")).reset();
 				m.find();
 				String s = m.group();
