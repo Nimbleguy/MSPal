@@ -59,7 +59,6 @@ public class Mspa{
 	public static String owner;
 	public static String pastebin;
 	public static String lock = "";
-	public static String lock2 = "";
 
 	public static HashMap<String, String> joaje;
 
@@ -148,8 +147,8 @@ public class Mspa{
 				f.createNewFile();
 			}
 		}
-		catch(Exception e){
-			e.printStackTrace();
+		catch(Exception exc){
+			exc.printStackTrace();
 		}
 		if(logs == null){
 			logs = new HashMap<String, String[]>();
@@ -182,9 +181,8 @@ public class Mspa{
 		else if(args.length == 3){
 			me = new Mspa(args[0], args[1], args[2]);
 		}
-		else if(args.length == 5){
+		else if(args.length == 4){
 			lock = args[3];
-			lock2 = args[4];
 			me = new Mspa(args[0], args[1], args[2]);
 		}
 		else{
@@ -223,8 +221,8 @@ public class Mspa{
 										index++;
 									}
 								}
-								catch(Exception e){
-									e.printStackTrace();
+								catch(Exception exc){
+									exc.printStackTrace();
 								}
 							}
 						}
@@ -242,15 +240,15 @@ public class Mspa{
 										bot.getOrCreatePMChannel(user).sendMessage(":dog: https://www.youtube.com/watch?v=E7WD3sxG8j0 :dog:");
 									}
 								}
-								catch(Exception e){
-									e.printStackTrace();
+								catch(Exception exc){
+									exc.printStackTrace();
 								}
 							}
 						}
 					}
 				}
-				catch(Exception e){
-					e.printStackTrace();
+				catch(Exception exce){
+					exce.printStackTrace();
 				}
 			}
 		}, delay, 43200000); //1/2 day in ms
@@ -265,8 +263,8 @@ public class Mspa{
 						System.exit(1);
 					}
 				}
-				catch(Exception e){
-					e.printStackTrace();
+				catch(Exception exc){
+					exc.printStackTrace();
 				}
 			}
 
@@ -340,7 +338,12 @@ public class Mspa{
 				String[] f = logs.get(chan.getID());
 				logs.put(chan.getID(), null);
 				File t = new File(f[0] + ".txt");
-				chan.sendFile(t);
+				try{
+					chan.sendFile(t);
+				}
+				catch(Exception exc){
+					exc.printStackTrace();
+				}
 				if(pastebin != null){
 					PasteBin paste = new PasteBin(new AccountCredentials(pastebin));
 					Paste p = new Paste();
@@ -378,7 +381,7 @@ public class Mspa{
 				logs.put(chan.getID(), new String[] {info[0], info[1], e.getMessage().getID()});
 			}
 
-			if(cmdban.get(chan.getGuild().getID()) != null){
+			if(!(chan instanceof IPrivateChannel) && cmdban.get(chan.getGuild().getID()) != null){
 				Matcher banmatch = cmdpatban.matcher(msg);
 				while(banmatch.find()){
 					String s = banmatch.group();
@@ -416,9 +419,6 @@ public class Mspa{
 //			if(msg.contains(":topkek:") || msg.contains(":kek:")){
 //				chan.sendFile(new File("./kek.png"));
 //			}
-			if(msg.contains(":emily:") && !(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
-				chan.sendFile(new File("./emily.png"));
-			}
 			if(msg.contains(":marriage:")){
 				chan.sendMessage("MSPal says: :marridge:");
 			}
@@ -525,6 +525,15 @@ public class Mspa{
 			}
 			if(msg.contains(":deal:")){
 				chan.sendFile(new File("./deal.png"));
+			}
+			if(msg.contains(":mad:")){
+				chan.sendFile(new File("./mad.png"));
+			}
+			if(msg.contains(":sin:")){
+				chan.sendFile(new File("./sin.png"));
+			}
+			if(msg.contains(":meme:")){
+				chan.sendFile(new File("./meme.png"));
 			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
@@ -725,8 +734,11 @@ public class Mspa{
 						+ ":objection: overruled\n"
 						+ ":both: mexicans\n"
 						+ ":dipper: green mario\n"
-						+ ":cmdban: per-server disable my commands... using a command"
-						+ ":deal: bill cipher best illuminati```");
+						+ ":cmdban: per-server disable my commands... using a command\n"
+						+ ":deal: bill cipher best illuminati\n"
+						+ ":mad: c h a o s\n"
+						+ ":sin: ness\n"
+						+ ":meme: by norton```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -735,10 +747,7 @@ public class Mspa{
 							+ ":mimeowl: hail, the most fearsome of conflict shards and ██████. the end of ends ever looms.\n"
 							+ ":pls: the edits\n"
 							+ ":why: no rule34 please\n"
-							+ ":heavy: fairy godparents```");
-				}
-				if(!(chan instanceof IPrivateChannel) && (chan.getGuild().getID().equals(lock2) || chan.getGuild().getID().equals(lock))){
-					pm.sendMessage("```:emily: the dream```");
+							+ ":heavy: heavyiswishmakingfairy.psd```");
 				}
 			}
 			else if(msg.equals(":away:") && e.getMessage().getAuthor().getID().equals(owner)){
@@ -969,7 +978,7 @@ public class Mspa{
 				}
 				chan.sendMessage(out);
 			}
-			else if(msg.startsWith(":cmdban: ") && e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.ADMINISTRATOR)){
+			else if(msg.startsWith(":cmdban: ") && e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.ADMINISTRATOR) && !(chan instanceof IPrivateChannel)){
 				Matcher m = cmdpatban.matcher(msg.replace(":cmdban: ", "")).reset();
 				m.find();
 				String s = m.group();
@@ -987,6 +996,13 @@ public class Mspa{
 						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been banned!");
 					}
 					cmdban.put(chan.getGuild().getID(), l);
+				}
+			}
+			else if(msg.startsWith(":;: ")){
+				String[] s = msg.replace(":;: ", "").split(" ;:; ");
+				IChannel i = bot.getChannelByID(s[0]);
+				if(i.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.ADMINISTRATOR) || e.getMessage().getAuthor().getID().equals(owner)){
+					i.sendMessage(s[1]);
 				}
 			}
 
