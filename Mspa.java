@@ -386,7 +386,7 @@ public class Mspa{
 				while(banmatch.find()){
 					String s = banmatch.group();
 					if(cmdban.get(chan.getGuild().getID()).contains(s)){
-						msg = msg.replaceAll(s, s.replaceAll(":", ""));
+						msg = msg.replaceAll(s, s.replaceAll(":", "||"));
 					}
 				}
 			}
@@ -534,6 +534,9 @@ public class Mspa{
 			}
 			if(msg.contains(":meme:")){
 				chan.sendFile(new File("./meme.png"));
+			}
+			if(msg.contains(":burn:")){
+				chan.sendFile(new File("./burn.gif"));
 			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
@@ -738,7 +741,9 @@ public class Mspa{
 						+ ":deal: bill cipher best illuminati\n"
 						+ ":mad: c h a o s\n"
 						+ ":sin: ness\n"
-						+ ":meme: by norton```");
+						+ ":meme: by norton\n"
+						+ ":burn: list_of_burn_centers\n"
+						+ ":shoot: stand or be shot```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -852,6 +857,26 @@ public class Mspa{
 					}
 				}
 			}
+			else if(msg.startsWith(":shoot: ")){
+                                String muda = msg.replace(":shoot: ", "");
+                                if(muda.contains("208370334624251906") || muda.contains("162345113966608394")){
+                                        chan.sendMessage("Sorry Dave, but I can't let you do that.");
+                                }
+                                else{
+                                        if(muda.contains(e.getMessage().getAuthor().getID()) || muda.contains(e.getMessage().getAuthor().getName())){
+                                                chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> joined EZIC!");
+                                        }
+                                        else{
+                                                int r = new Random().nextInt(4);
+                                                if(r == 2){
+                                                        chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> tripped and accidentally commited sudoku!");
+                                                }
+                                                else{
+                                                        chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> shot " + muda + "!");
+                                                }
+                                        }
+                                }
+                        }
 			else if(msg.equals(":zodiac:")){
 				FileInputStream fin = new FileInputStream(new File("./zodiac"));
 				List<String> lines = IOUtils.readLines(fin, "utf-8");
@@ -979,23 +1004,24 @@ public class Mspa{
 				chan.sendMessage(out);
 			}
 			else if(msg.startsWith(":cmdban: ") && (e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_PERMISSIONS) || e.getMessage().getAuthor().getID().equals(owner)) && !(chan instanceof IPrivateChannel)){
-				Matcher m = cmdpatban.matcher(msg.replace(":cmdban: ", "")).reset();
-				m.find();
-				String s = m.group();
-				if(!s.contains(":cmdban:")){
-					if(cmdban.get(chan.getGuild().getID()) == null){
-						cmdban.put(chan.getGuild().getID(), new ArrayList<String>());
+				Matcher m = cmdpatban.matcher(msg.replace(":cmdban: ", "").replace("||", ":")).reset();
+				if(m.find()){
+					String s = m.group();
+					if(!s.contains(":cmdban:")){
+						if(cmdban.get(chan.getGuild().getID()) == null){
+							cmdban.put(chan.getGuild().getID(), new ArrayList<String>());
+						}
+						List<String> l = cmdban.get(chan.getGuild().getID());
+						if(cmdban.get(chan.getGuild().getID()).contains(s)){
+							l.remove(s);
+							bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been unbanned!");
+						}
+						else{
+							l.add(s);
+							bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been banned!");
+						}
+						cmdban.put(chan.getGuild().getID(), l);
 					}
-					List<String> l = cmdban.get(chan.getGuild().getID());
-					if(cmdban.get(chan.getGuild().getID()).contains(s)){
-						l.remove(s);
-						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been unbanned!");
-					}
-					else{
-						l.add(s);
-						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been banned!");
-					}
-					cmdban.put(chan.getGuild().getID(), l);
 				}
 			}
 			else if(msg.startsWith(":;: ")){
@@ -1006,7 +1032,7 @@ public class Mspa{
 				}
 			}
 
-			if(matchkek.find()){
+			if(matchkek.find() && !cmdban.get(chan.getGuild().getID()).contains(":kek:")){
 				String keks = matchkek.group().replace(":", "");
 				int ek = StringUtils.countMatches(keks, "ek");
 				String justkek = keks.replace("top", "").replace("low", "");
