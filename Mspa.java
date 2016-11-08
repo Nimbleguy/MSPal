@@ -2,6 +2,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.util.MessageList;
+import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
 
@@ -67,11 +68,13 @@ public class Mspa{
 
 	public static ChatterBotSession chat;
 
-	public static Pattern keks = Pattern.compile(":((top)|(low)|k|e|k)+:");
+	public static Pattern keks = Pattern.compile(":((top)|(low)|(tap)|(law)|k|e|k)+:");
 	public static Pattern cmdpatban = Pattern.compile(":\\S+?:");
 
 	public static HashMap<String, List<String>> bans;
 	public static HashMap<String, List<String>> cmdban;
+
+	public static long wall = 0;;
 
 	public Mspa(String token, String own, String bin){
 		try{
@@ -140,6 +143,17 @@ public class Mspa{
 				FileInputStream fin = new FileInputStream(f);
 				ObjectInputStream oin = new ObjectInputStream(fin);
 				cmdban = (HashMap<String, List<String>>)oin.readObject();
+				oin.close();
+				fin.close();
+			}
+			else{
+				f.createNewFile();
+			}
+			f = new File("./wall");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
+				ObjectInputStream oin = new ObjectInputStream(fin);
+				wall = (Long)oin.readObject();
 				oin.close();
 				fin.close();
 			}
@@ -316,7 +330,7 @@ public class Mspa{
 	}
 
 	@EventSubscriber
-	public void message(MessageReceivedEvent e){
+	public void message(MessageReceivedEvent e) throws RateLimitException{
 		if(e.getMessage().getAuthor().isBot() || e.getMessage() == null || e.getMessage().getContent() == null){
 			return;
 		}
@@ -538,6 +552,42 @@ public class Mspa{
 			if(msg.contains(":burn:")){
 				chan.sendFile(new File("./burn.gif"));
 			}
+			if(msg.contains(":oneone:")){
+				chan.sendFile(new File("./oneone.gif"));
+			}
+
+
+
+			if(msg.contains(":build:")){
+				if(wall != Long.MAX_VALUE){
+					chan.sendMessage("The " + (wall < 0 ? "moat" : "wall") + " just got one foot " + (wall < 0 ? "shallower" : "higher") + "!");
+					wall += 1;
+					if(wall != 0){
+						chan.sendMessage("The " + (wall < 0 ? "moat" : "wall") + " is currently " + Long.toString(Math.abs(wall)) + " feet " + (wall < 0 ? "deep" : "high") + "!");
+					}
+					else{
+						chan.sendMessage("**ALERT**: THE BORDER IS UNGUARDED!");
+					}
+				}
+				else{
+					chan.sendMessage("Congratulations, you made a space elevator. The Wall shall now keep out every Mexican. Heil Trump.");
+				}
+			}
+			if(msg.contains(":smash:")){
+				 if(wall != Long.MIN_VALUE){
+					chan.sendMessage("The " + (wall > 0 ? "wall" : "moat") + " just got one foot " + (wall > 0 ? "shorter" : "deeper") + "!");
+					wall -= 1;
+					if(wall != 0){
+						chan.sendMessage("The " + (wall > 0 ? "wall" : "moat") + " is currently " + Long.toString(Math.abs(wall)) + " feet " + (wall > 0 ? "high" : "deep") + "!");
+					}
+					else{
+						chan.sendMessage("**ALERT**: THE BORDER IS UNGUARDED!");
+					}
+				}
+				else{
+					chan.sendMessage("Congratulations, you have just burrowed far into space. Those Russese will never get over your moat! Heil Trump.");
+				}
+			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
 //			}
@@ -743,7 +793,11 @@ public class Mspa{
 						+ ":sin: ness\n"
 						+ ":meme: by norton\n"
 						+ ":burn: list_of_burn_centers\n"
-						+ ":shoot: stand or be shot```");
+						+ ":shoot: stand or be shot\n"
+						+ ":oneone: where is my obituary\n"
+						+ "as a note, tapkek and lawkek is completely valid, as well as eke\n"
+						+ ":build: it's election day, you know what that means\n"
+						+ ":smash: that's right. the super smash trumps brawl```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -1035,9 +1089,9 @@ public class Mspa{
 			if(matchkek.find() && !cmdban.get(chan.getGuild().getID()).contains(":kek:")){
 				String keks = matchkek.group().replace(":", "");
 				int ek = StringUtils.countMatches(keks, "ek");
-				String justkek = keks.replace("top", "").replace("low", "");
-				BufferedImage k = ImageIO.read(new File("./kek.png"));
-				if(justkek.startsWith("e")){
+				String justkek = keks.replaceAll("top", "").replaceAll("low", "").replaceAll("tap", "").replaceAll("law", "");
+				BufferedImage k = ImageIO.read(new File(keks.contains("tap") || keks.contains("law") ? "./kak.png" : "./kek.png"));
+				if(justkek.startsWith("e") && !(keks.contains("tap") || keks.contains("law"))){
 					LookupTable colors = new LookupTable(0, 4){
 						@Override
 						public int[] lookupPixel(int[] src, int[] dest){
@@ -1051,19 +1105,19 @@ public class Mspa{
 					k = colop.filter(k, null);
 					ek = StringUtils.countMatches(keks, "ke");
 				}
-				if(keks.startsWith("low")){
+				if(keks.startsWith("l")){ // Low/Law
 					AffineTransform at = AffineTransform.getScaleInstance(1, -1);
 					at.translate(0, -k.getHeight(null));
 					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 					k = ato.filter(k, null);
 				}
-				else if(keks.endsWith("top")){
+				else if(keks.endsWith("p")){ // Top/Tap
 					AffineTransform at = AffineTransform.getScaleInstance(-1, 1);
 					at.translate(-k.getWidth(null), 0);
 					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 					k = ato.filter(k, null);
 				}
-				else if(keks.endsWith("low")){
+				else if(keks.endsWith("w")){ // Low/Law
 					AffineTransform at = AffineTransform.getScaleInstance(-1, -1);
 					at.translate(-k.getWidth(null), -k.getHeight(null));
 					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
@@ -1071,7 +1125,7 @@ public class Mspa{
 				}
 				BufferedImage out = new BufferedImage(k.getWidth(null) + (9 * ek), k.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 				Graphics g = out.getGraphics();
-				if(keks.contains("low") && keks.contains("top")){
+				if(keks.contains("l") && keks.contains("t")){
 					g.setClip(new Ellipse2D.Float(0, 0, k.getWidth(null) + (9 * ek), k.getHeight(null)));
 				}
 				for(int i = 0; i < ek; i++){
@@ -1112,6 +1166,11 @@ public class Mspa{
 			fout = new FileOutputStream(new File("./cmdban"));
 			oout = new ObjectOutputStream(fout);
 			oout.writeObject(cmdban);
+			oout.close();
+			fout.close();
+			fout = new FileOutputStream(new File("./wall"));
+			oout = new ObjectOutputStream(fout);
+			oout.writeObject((Long)wall);
 			oout.close();
 			fout.close();
 		}
