@@ -1,8 +1,8 @@
-ARTCORD=com.github.austinv11 Discord4J 2.6.1
+ARTCORD=com.github.austinv11 Discord4J websocket-rewrite-SNAPSHOT
 ARTBIN=com.github.kennedyoliveira pastebin4j 1.2.0
 ARTCLEV=ca.pjer chatter-bot-api 1.4.2
 
-all : build run
+all : run
 
 build : dep Mspa.class
 
@@ -25,6 +25,12 @@ Mspa.class : Mspa.java
 
 run : build
 	while true; do java -cp ".:libs/*" Mspa $(shell cat auth.txt); done
+
+debug : build
+	while true; do java -Xdebug -Xnoagent -Djava.compiler=NONE  -Xrunjdwp:transport=dt_socket,server=y,address=8888,suspend=y -cp ".:libs/*" Mspa $(shell cat auth.txt); done
+
+jdb :
+	jdb -attach localhost:8888
 
 clean :
 	rm Msp*.class ivy.jar libs/*

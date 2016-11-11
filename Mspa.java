@@ -68,7 +68,7 @@ public class Mspa{
 
 	public static ChatterBotSession chat;
 
-	public static Pattern keks = Pattern.compile(":((top)|(low)|(tap)|(law)|k|e|k)+:");
+	public static Pattern keks = Pattern.compile(":((top)|(low)|(tap)|(law)|(fr)|(rf)|k|e|k)+:");
 	public static Pattern cmdpatban = Pattern.compile(":\\S+?:");
 
 	public static HashMap<String, List<String>> bans;
@@ -306,7 +306,7 @@ public class Mspa{
 			String newMsg = e.getNewMessage().getContent();
 			if(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null){
 				String[] info = logs.get(chan.getID());
-				File t = new File(info[0] + ".txt");
+				File t = new File("chat", info[0] + ".txt");
 				FileInputStream fin = new FileInputStream(t);
 				List<String> l = IOUtils.readLines(fin, "utf-8");
 				fin.close();
@@ -341,7 +341,7 @@ public class Mspa{
 			return;
 		}
 		try{
-			String msg = e.getMessage().getContent();
+			String msg = e.getMessage().getContent().replaceAll("@everyone", "@Everyone").replaceAll("@here", "@Here");
 			IChannel chan = e.getMessage().getChannel();
 			Matcher matchkek = keks.matcher(msg);
 			if(chan instanceof IPrivateChannel){
@@ -351,7 +351,7 @@ public class Mspa{
 			if(msg.equals(":endlog:")){
 				String[] f = logs.get(chan.getID());
 				logs.put(chan.getID(), null);
-				File t = new File(f[0] + ".txt");
+				File t = new File("chat", f[0] + ".txt");
 				try{
 					chan.sendFile(t);
 				}
@@ -376,7 +376,7 @@ public class Mspa{
 			if(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null){
 				String[] info = logs.get(chan.getID());
 				MessageList l = chan.getMessages();
-				PrintWriter out = new PrintWriter(new FileOutputStream(new File("./" + info[0] + ".txt"), true));
+				PrintWriter out = new PrintWriter(new FileOutputStream(new File("chat", info[0] + ".txt"), true));
 				if(!l.getLatestMessage().getID().equals(e.getMessage().getID())){
 					Stack<IMessage> rev = new Stack<IMessage>();
 					for(IMessage m : l){
@@ -555,7 +555,9 @@ public class Mspa{
 			if(msg.contains(":oneone:")){
 				chan.sendFile(new File("./oneone.gif"));
 			}
-
+			if(msg.contains(":papabless:")){
+				chan.sendMessage("https://www.gofundme.com/hugh-mungus");
+			}
 
 
 			if(msg.contains(":build:")){
@@ -795,9 +797,10 @@ public class Mspa{
 						+ ":burn: list_of_burn_centers\n"
 						+ ":shoot: stand or be shot\n"
 						+ ":oneone: where is my obituary\n"
-						+ "as a note, tapkek and lawkek is completely valid, as well as eke\n"
+						+ "as a note, tapkek and lawkek is completely valid, as well as eke and frek and rfke\n"
 						+ ":build: it's election day, you know what that means\n"
-						+ ":smash: that's right. the super smash trumps brawl```");
+						+ ":smash: that's right. the super smash trumps brawl\n"
+						+ ":papabless: hugh```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -1088,9 +1091,9 @@ public class Mspa{
 
 			if(matchkek.find() && !cmdban.get(chan.getGuild().getID()).contains(":kek:")){
 				String keks = matchkek.group().replace(":", "");
-				int ek = StringUtils.countMatches(keks, "ek");
-				String justkek = keks.replaceAll("top", "").replaceAll("low", "").replaceAll("tap", "").replaceAll("law", "");
-				BufferedImage k = ImageIO.read(new File(keks.contains("tap") || keks.contains("law") ? "./kak.png" : "./kek.png"));
+				String justkek = keks.replaceAll("top", "").replaceAll("low", "").replaceAll("tap", "").replaceAll("law", "").replaceAll("fr", "k").replace("rf", "e");
+				int ek = StringUtils.countMatches(justkek, "ek");
+				BufferedImage k = ImageIO.read(new File(keks.contains("tap") || keks.contains("law") ? "./kak.png" : (keks.contains("fr") || keks.contains("rf") ? "./frek.png" : "./kek.png")));
 				if(justkek.startsWith("e") && !(keks.contains("tap") || keks.contains("law"))){
 					LookupTable colors = new LookupTable(0, 4){
 						@Override
@@ -1103,7 +1106,7 @@ public class Mspa{
 					};
 					LookupOp colop = new LookupOp(colors, new RenderingHints(null));
 					k = colop.filter(k, null);
-					ek = StringUtils.countMatches(keks, "ke");
+					ek = StringUtils.countMatches(justkek, "ke");
 				}
 				if(keks.startsWith("l")){ // Low/Law
 					AffineTransform at = AffineTransform.getScaleInstance(1, -1);

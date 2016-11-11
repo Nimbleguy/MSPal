@@ -1,4 +1,5 @@
 *.txt
+*/*.txt
 libs
 libs/*
 ivy.jar
@@ -19,3 +20,4 @@ bans
 why.png
 cmdban
 heavy.png
+wall
