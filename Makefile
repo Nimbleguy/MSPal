@@ -1,6 +1,10 @@
-ARTCORD=com.github.austinv11 Discord4J websocket-rewrite-SNAPSHOT
-ARTBIN=com.github.kennedyoliveira pastebin4j 1.2.0
-ARTCLEV=ca.pjer chatter-bot-api 1.4.2
+# ARTCORD:=com.github.austinv11 Discord4J websocket-rewrite-SNAPSHOT
+ARTCORD:=com.github.austinv11 Discord4J 2.6.1
+ARTBIN:=com.github.kennedyoliveira pastebin4j 1.2.0
+ARTCLEV:=ca.pjer chatter-bot-api 1.4.2
+ARTLOG:=ch.qos.logback logback-classic 1.1.7
+
+JARGS:=-cp ".:libs/*" Mspa $(shell cat auth.txt)
 
 all : run
 
@@ -13,6 +17,7 @@ libs : ivysettings.xml ivy.jar
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTCORD) -settings ivysettings.xml
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTBIN) -settings ivysettings.xml
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTCLEV) -settings ivysettings.xml
+	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTLOG) -settings ivysettings.xml
 
 ivy.jar :
 	wget http://archive.apache.org/dist/ant/ivy/2.4.0/apache-ivy-2.4.0-bin.zip
@@ -24,10 +29,10 @@ Mspa.class : Mspa.java
 	javac -cp ".:libs/*" Mspa.java
 
 run : build
-	while true; do java -cp ".:libs/*" Mspa $(shell cat auth.txt); done
+	while true; do java $(JARGS); done
 
 debug : build
-	while true; do java -Xdebug -Xnoagent -Djava.compiler=NONE  -Xrunjdwp:transport=dt_socket,server=y,address=8888,suspend=y -cp ".:libs/*" Mspa $(shell cat auth.txt); done
+	while true; do java -Xdebug -Xnoagent -Djava.compiler=NONE  -Xrunjdwp:transport=dt_socket,server=y,address=8888,suspend=y $(JARGS); done
 
 jdb :
 	jdb -attach localhost:8888

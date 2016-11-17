@@ -5,6 +5,7 @@ import sx.blah.discord.util.MessageList;
 import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.Discord4J;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +44,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
+import java.sql.Timestamp;
 
 import javax.imageio.ImageIO;
 
@@ -287,7 +289,7 @@ public class Mspa{
 
 	@EventSubscriber
 	public void ready(ReadyEvent e){
-		System.out.println("MSPAL ONLINE");
+		Discord4J.LOGGER.info("MSPAL ONLINE");
 		bot.changePresence(false);
 		bot.changeStatus(Status.game(":commands:"));
 		beginFacting();
@@ -377,7 +379,7 @@ public class Mspa{
 				String[] info = logs.get(chan.getID());
 				MessageList l = chan.getMessages();
 				PrintWriter out = new PrintWriter(new FileOutputStream(new File("chat", info[0] + ".txt"), true));
-				if(!l.getLatestMessage().getID().equals(e.getMessage().getID())){
+				if((l.getLatestMessage().equals(e.getMessage().getID()) && !l.get(1).getID().equals(info[2])) || (!l.getLatestMessage().equals(e.getMessage().getID()) && !l.get(0).getID().equals(info[2]))){
 					Stack<IMessage> rev = new Stack<IMessage>();
 					for(IMessage m : l){
 						if(m.getID().equals(info[2])){
@@ -392,7 +394,19 @@ public class Mspa{
 				}
 				out.println(e.getMessage().getAuthor().getName() + ": " + msg);
 				out.close();
-				logs.put(chan.getID(), new String[] {info[0], info[1], e.getMessage().getID()});
+				String lt = null;
+				if(info.length < 4){
+					chan.sendMessage("Just a reminder: This log is still going on. This message wil **not** appear in the log.");
+					lt = String.valueOf(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime());
+				}
+				else if(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime() >= Long.valueOf(info[3]) + 432000000){ // 5 days in millis.
+					chan.sendMessage("Just a reminder: This log is still going on. This message wil **not** appear in the log.");
+					lt = String.valueOf(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime());
+				}
+				else{
+					lt = info[3];
+				}
+				logs.put(chan.getID(), new String[] {info[0], info[1], e.getMessage().getID(), lt});
 			}
 
 			if(!(chan instanceof IPrivateChannel) && cmdban.get(chan.getGuild().getID()) != null){
@@ -407,7 +421,7 @@ public class Mspa{
 
 			if(msg.equals(":startlog:")){
 				if(!(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null)){
-					String[] v = new String[] {e.getMessage().getID(), e.getMessage().getAuthor().getID(), e.getMessage().getID()};
+					String[] v = new String[] {e.getMessage().getID(), e.getMessage().getAuthor().getID(), e.getMessage().getID(), String.valueOf(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime())};
 					logs.put(chan.getID(), v);
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("Log started.");
 				}
@@ -558,37 +572,48 @@ public class Mspa{
 			if(msg.contains(":papabless:")){
 				chan.sendMessage("https://www.gofundme.com/hugh-mungus");
 			}
+			if(msg.contains(":mspalsus:")){
+				chan.sendFile(new File("./mspalsus.png"));
+			}
 
 
 			if(msg.contains(":build:")){
 				if(wall != Long.MAX_VALUE){
-					chan.sendMessage("The " + (wall < 0 ? "moat" : "wall") + " just got one foot " + (wall < 0 ? "shallower" : "higher") + "!");
+					String toSend = ("The " + (wall < 0 ? "moat" : "wall") + " just got one foot " + (wall < 0 ? "shallower" : "higher") + "! ");
 					wall += 1;
 					if(wall != 0){
-						chan.sendMessage("The " + (wall < 0 ? "moat" : "wall") + " is currently " + Long.toString(Math.abs(wall)) + " feet " + (wall < 0 ? "deep" : "high") + "!");
+						toSend += ("The " + (wall < 0 ? "moat" : "wall") + " is currently " + Long.toString(Math.abs(wall)) + " feet " + (wall < 0 ? "deep" : "high") + "!");
 					}
 					else{
-						chan.sendMessage("**ALERT**: THE BORDER IS UNGUARDED!");
+						toSend += ("**ALERT**: THE BORDER IS UNGUARDED!");
 					}
+					chan.sendMessage(toSend);
 				}
 				else{
-					chan.sendMessage("Congratulations, you made a space elevator. The Wall shall now keep out every Mexican. Heil Trump.");
+					chan.sendMessage("Congratulations, you made a space elevator. The Wall shall now keep out every Mexican.");
 				}
+				if(wall == -666){
+                                        chan.sendMessage(" Lucifer says hi.");
+                                }
 			}
 			if(msg.contains(":smash:")){
 				 if(wall != Long.MIN_VALUE){
-					chan.sendMessage("The " + (wall > 0 ? "wall" : "moat") + " just got one foot " + (wall > 0 ? "shorter" : "deeper") + "!");
+					String toSend = ("The " + (wall > 0 ? "wall" : "moat") + " just got one foot " + (wall > 0 ? "shorter" : "deeper") + "! ");
 					wall -= 1;
 					if(wall != 0){
-						chan.sendMessage("The " + (wall > 0 ? "wall" : "moat") + " is currently " + Long.toString(Math.abs(wall)) + " feet " + (wall > 0 ? "high" : "deep") + "!");
+						toSend += ("The " + (wall > 0 ? "wall" : "moat") + " is currently " + Long.toString(Math.abs(wall)) + " feet " + (wall > 0 ? "high" : "deep") + "!");
 					}
 					else{
-						chan.sendMessage("**ALERT**: THE BORDER IS UNGUARDED!");
+						toSend += ("**ALERT**: THE BORDER IS UNGUARDED!");
 					}
+					chan.sendMessage(toSend);
 				}
 				else{
-					chan.sendMessage("Congratulations, you have just burrowed far into space. Those Russese will never get over your moat! Heil Trump.");
+					chan.sendMessage("Congratulations, you have just burrowed far into space. Those Russese will never get over your moat!");
 				}
+				if(wall == -666){
+                                        chan.sendMessage(" Lucifer says hi.");
+                                }
 			}
 //			if(msg.contains(":kektop:")){
 //				chan.sendFile(new File("./kektop.png"));
@@ -728,6 +753,9 @@ public class Mspa{
 				if(msg.toLowerCase().contains("w h a t w e r e a l l y a r e")){
 					chan.sendMessage("https://www.youtube.com/watch?v=yOr9fztiiT8");
 				}
+				if(msg.toLowerCase().contains("sport")){
+					chan.sendMessage("The FitnessGram Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues. The 20 meter pacer test will begin in 30 seconds. Line up at the start. The running speed starts slowly but gets faster each minute after you hear this signal bodeboop. A sing lap should be completed every time you hear this sound. ding Remember to run in a straight line and run as long as possible. The second time you fail to complete a lap before the sound, your test is over. The test will begin on the word start. On your mark. Get ready!? Start. ding?");
+				}
 			}
 
 			if(msg.equals(":commands:")){
@@ -800,7 +828,9 @@ public class Mspa{
 						+ "as a note, tapkek and lawkek is completely valid, as well as eke and frek and rfke\n"
 						+ ":build: it's election day, you know what that means\n"
 						+ ":smash: that's right. the super smash trumps brawl\n"
-						+ ":papabless: hugh```");
+						+ ":papabless: hugh\n"
+						+ ":mspalsus: our saviour, art by twinbuilder\n"
+						+ ":encourage: sometimes, you just need a pick-me-up, thanks pope for lots of stuff```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -1088,12 +1118,24 @@ public class Mspa{
 					i.sendMessage(s[1]);
 				}
 			}
+			else if(msg.equals(":encourage:")){
+				FileInputStream fin = new FileInputStream(new File("./encourage"));
+				List<String> lines = IOUtils.readLines(fin, "utf-8");
+				fin.close();
+				int r = new Random().nextInt(lines.size());
+				chan.sendMessage(lines.get(r));
+			}
 
-			if(matchkek.find() && !cmdban.get(chan.getGuild().getID()).contains(":kek:")){
+			boolean shouldKek = cmdban.get(chan.getGuild().getID()) != null;
+			if(!shouldKek){
+				shouldKek = !cmdban.get(chan.getGuild().getID()).contains(":kek:");
+			}
+
+			if(matchkek.find() && shouldKek){
 				String keks = matchkek.group().replace(":", "");
 				String justkek = keks.replaceAll("top", "").replaceAll("low", "").replaceAll("tap", "").replaceAll("law", "").replaceAll("fr", "k").replace("rf", "e");
 				int ek = StringUtils.countMatches(justkek, "ek");
-				BufferedImage k = ImageIO.read(new File(keks.contains("tap") || keks.contains("law") ? "./kak.png" : (keks.contains("fr") || keks.contains("rf") ? "./frek.png" : "./kek.png")));
+				BufferedImage k = ImageIO.read(new File(keks.contains("tap") || keks.contains("law") ? (keks.contains("fr") || keks.contains("rf") ? "./frak.png" : "./kak.png") : (keks.contains("fr") || keks.contains("rf") ? "./frek.png" : "./kek.png")));
 				if(justkek.startsWith("e") && !(keks.contains("tap") || keks.contains("law"))){
 					LookupTable colors = new LookupTable(0, 4){
 						@Override
