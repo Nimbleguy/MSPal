@@ -58,6 +58,7 @@ public class Mspa{
 	public static String last = "";
 
 	public static HashMap<String, String[]> logs;
+	public static HashMap<String, List<String>> logmsg;
 
 	public static String owner;
 	public static String pastebin;
@@ -76,7 +77,7 @@ public class Mspa{
 	public static HashMap<String, List<String>> bans;
 	public static HashMap<String, List<String>> cmdban;
 
-	public static long wall = 0;;
+	public static long wall = 0;
 
 	public Mspa(String token, String own, String bin){
 		try{
@@ -162,6 +163,17 @@ public class Mspa{
 			else{
 				f.createNewFile();
 			}
+			f = new File("./logmsg");
+			if(f.exists()){
+				FileInputStream fin = new FileInputStream(f);
+				ObjectInputStream oin = new ObjectInputStream(fin);
+				logmsg = (HashMap<String, List<String>>)oin.readObject();
+				oin.close();
+				fin.close();
+			}
+			else{
+				f.createNewFile();
+			}
 		}
 		catch(Exception exc){
 			exc.printStackTrace();
@@ -183,6 +195,9 @@ public class Mspa{
 		}
 		if(cmdban == null){
 			cmdban = new HashMap<String, List<String>>();
+		}
+		if(logmsg == null){
+			logmsg = new HashMap<String, List<String>>();
 		}
 	}
 
@@ -276,7 +291,16 @@ public class Mspa{
 			public void run(){
 				try{
 					if(!bot.isReady()){
-						System.exit(1);
+						try{
+							bot.login();
+							Thread.sleep(10000);
+							if(!bot.isReady()){
+								System.exit(1);
+							}
+						}
+						catch(Exception exc){
+							System.exit(1);
+						}
 					}
 				}
 				catch(Exception exc){
@@ -284,14 +308,14 @@ public class Mspa{
 				}
 			}
 
-		}, 60000, 60000);
+		}, 600000, 60000); // Start 10 mins after watchdog's called, check every 1 minute.
 	}
 
 	@EventSubscriber
 	public void ready(ReadyEvent e){
 		Discord4J.LOGGER.info("MSPAL ONLINE");
 		bot.changePresence(false);
-		bot.changeStatus(Status.game(":commands:"));
+		bot.changeStatus(Status.game("type :info:"));
 		beginFacting();
 		watchdog();
 	}
@@ -336,6 +360,9 @@ public class Mspa{
 		if(e.getMessage().getAuthor().isBot() || e.getMessage() == null || e.getMessage().getContent() == null){
 			return;
 		}
+		if(e.getMessage().getAuthor().getID().equals(bot.getOurUser().getID())){
+			return;
+		}
 		if(!(e.getMessage().getChannel() instanceof IPrivateChannel) && !e.getMessage().getChannel().getModifiedPermissions(bot.getOurUser()).contains(Permissions.READ_MESSAGES)){
 			return;
 		}
@@ -343,7 +370,7 @@ public class Mspa{
 			return;
 		}
 		try{
-			String msg = e.getMessage().getContent().replaceAll("@everyone", "@Everyone").replaceAll("@here", "@Here");
+			String msg = e.getMessage().getContent().replaceAll("@everyone", "Kolechia").replaceAll("@here", "North Korea");
 			IChannel chan = e.getMessage().getChannel();
 			Matcher matchkek = keks.matcher(msg);
 			if(chan instanceof IPrivateChannel){
@@ -352,55 +379,81 @@ public class Mspa{
 
 			if(msg.equals(":endlog:")){
 				String[] f = logs.get(chan.getID());
-				logs.put(chan.getID(), null);
 				File t = new File("chat", f[0] + ".txt");
 				try{
 					chan.sendFile(t);
 				}
 				catch(Exception exc){
+					chan.sendMessage("This log failed to send. Please try again, and if that doesn't work please contact the bot owner (details in :info:).");
+					exc.printStackTrace();
+					return;
+				}
+				logs.put(chan.getID(), null);
+				logmsg.put(chan.getID(), null);
+				try{
+					if(pastebin != null){
+						PasteBin paste = new PasteBin(new AccountCredentials(pastebin));
+						Paste p = new Paste();
+						p.setTitle(bot.getUserByID(f[1]).getName() + " Log");
+						p.setExpiration(PasteExpiration.NEVER);
+						p.setVisibility(PasteVisibility.PUBLIC);
+						p.setHighLight(PasteHighLight.TEXT);
+						FileInputStream fin = new FileInputStream(t);
+						p.setContent(IOUtils.toString(fin, "utf-8"));
+						fin.close();
+						chan.sendMessage(paste.createPaste(p));
+					}
+				}
+				catch(Exception exc){
 					exc.printStackTrace();
 				}
-				if(pastebin != null){
-					PasteBin paste = new PasteBin(new AccountCredentials(pastebin));
-					Paste p = new Paste();
-					p.setTitle(bot.getUserByID(f[1]).getName() + " Log");
-					p.setExpiration(PasteExpiration.NEVER);
-					p.setVisibility(PasteVisibility.PUBLIC);
-					p.setHighLight(PasteHighLight.TEXT);
-					FileInputStream fin = new FileInputStream(t);
-					p.setContent(IOUtils.toString(fin, "utf-8"));
-					fin.close();
-					chan.sendMessage(paste.createPaste(p));
+				finally{
+					t.delete();
 				}
-				t.delete();
 			}
 
 			if(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null){
 				String[] info = logs.get(chan.getID());
 				MessageList l = chan.getMessages();
-				PrintWriter out = new PrintWriter(new FileOutputStream(new File("chat", info[0] + ".txt"), true));
-				if((l.getLatestMessage().equals(e.getMessage().getID()) && !l.get(1).getID().equals(info[2])) || (!l.getLatestMessage().equals(e.getMessage().getID()) && !l.get(0).getID().equals(info[2]))){
-					Stack<IMessage> rev = new Stack<IMessage>();
-					for(IMessage m : l){
+				File t = new File("chat", info[0] + ".txt");
+				PrintWriter out = new PrintWriter(new FileOutputStream(t, true));
+				FileInputStream fin = new FileInputStream(t);
+				List<String> ls = IOUtils.readLines(fin, "utf-8");
+				Stack<IMessage> rev = new Stack<IMessage>();
+				for(IMessage m : l){
+					if(ls.size() != 0 && ls.get(ls.size() - 1) != null){
+						if(m.getContent().equals(ls.get(ls.size() - 1))){
+							break;
+						}
+					}
+					else{
 						if(m.getID().equals(info[2])){
 							break;
 						}
-						rev.push(m);
 					}
-					while(!rev.empty()){
-						IMessage m = rev.pop();
-						out.println(m.getAuthor().getName() + ": " + m.getContent());
+					if(logmsg.containsKey(chan.getID()) && logmsg.get(chan.getID()) != null && logmsg.get(chan.getID()).contains(m.getID())){
+						break;
 					}
+					rev.push(m);
+					List<String> msgs = logmsg.get(chan.getID());
+					if(!(logmsg.containsKey(chan.getID()) && logmsg.get(chan.getID()) != null)){
+						msgs = new ArrayList<String>();
+					}
+					msgs.add(m.getID());
+					logmsg.put(chan.getID(), msgs);
 				}
-				out.println(e.getMessage().getAuthor().getName() + ": " + msg);
+				while(!rev.empty()){
+					IMessage m = rev.pop();
+					out.println(m.getAuthor().getName() + ": " + m.getContent());
+				}
 				out.close();
 				String lt = null;
 				if(info.length < 4){
-					chan.sendMessage("Just a reminder: This log is still going on. This message wil **not** appear in the log.");
+					chan.sendMessage("Just a reminder: This log is still going on. Type :endlog: to end it. This message wil **not** appear in the log.");
 					lt = String.valueOf(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime());
 				}
 				else if(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime() >= Long.valueOf(info[3]) + 432000000){ // 5 days in millis.
-					chan.sendMessage("Just a reminder: This log is still going on. This message wil **not** appear in the log.");
+					chan.sendMessage("Just a reminder: This log is still going on. Type :endlog: to end it. This message wil **not** appear in the log.");
 					lt = String.valueOf(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime());
 				}
 				else{
@@ -575,6 +628,30 @@ public class Mspa{
 			if(msg.contains(":mspalsus:")){
 				chan.sendFile(new File("./mspalsus.png"));
 			}
+			if(msg.contains(":pepe:")){
+				if(new Random().nextInt() == 0){
+					chan.sendFile(new File("./rare.png"));
+				}
+				else{
+					chan.sendFile(new File("./pepe.png"));
+				}
+			}
+			if(msg.contains(":pi:")){
+				chan.sendFile(new File("./pi.png"));
+			}
+			if(msg.contains(":joke:")){
+				chan.sendFile(new File("./joke.gif"));
+			}
+			if(msg.contains(":100:")){
+				chan.sendFile(new File("./100.png"));
+			}
+			if(msg.contains(":guzma")){
+				chan.sendFile(new File("./guzma.png"));
+			}
+			if(msg.contains(":cents:")){
+				chan.sendFile(new File("./cents.png"));
+			}
+
 
 
 			if(msg.contains(":build:")){
@@ -769,16 +846,16 @@ public class Mspa{
 						+ ":startlog: start a chatlog\n"
 						+ ":endlog: end a chatlog\n"
 						+ ":invite: invite link\n"
-						+ ":cue: the most accurate 8ball\n"
+						+ ":cue: the most accurate 8ball [takes params]\n"
 						+ ":joaje: allowed users may toggle jokes in the current channel\n"
 						+ ":kek: topkek\n"
 						+ ":topkek: literally :kek:\n"
 						+ ":marriage: what do you think\n"
 						+ ":origin: where did the mspal come from?\n"
-						+ ":ask: what does the mspal's pet say\n"
-						+ ":pitchfork: want to join the mob\n"
+						+ ":ask: what does the mspal's pet say [takes params]\n"
+						+ ":pitchfork: want to join the mob [may take params]\n"
 						+ ":su: heil mspal, your lord and gem\n"
-						+ ":murder: you egg\n"
+						+ ":murder: you egg [takes params]\n"
 						+ ":lowkek: ech\n"
 						+ ":ech: jantran\n"
 						+ ":zodiac: but you made one fatal mistake, you messed with my family\n"
@@ -800,15 +877,15 @@ public class Mspa{
 						+ ":rules: abide by them or p e r i s h\n"
 						+ ":fun: u is for uranium bombs\n"
 						+ ":salt: square, armrest, and saltshaker\n"
-						+ ":kappa: twitch installs mspal\n"
-						+ ":shame: the corner of shame\n"
-						+ ":dogfacts: dogs like to absorb artifacts```");
-				pm.sendMessage("```:whoa: f u n k y f r e s h\n"
+						+ ":kappa: twitch installs mspal\n```");
+				pm.sendMessage("```:shame: the corner of shame\n"
+						+ ":dogfacts: dogs like to absorb artifacts\n"
+						+ ":whoa: f u n k y f r e s h [takes params]\n"
 						+ ":tom: wanna have a bad tom\n"
 						+ ":fear: s r p e l o\n"
 						+ ":pain: o l e p r s\n"
 						+ ":jerry: and jerry came too\n"
-						+ ":ignore: makes the bot userist, only works with mentions\n"
+						+ ":ignore: makes the bot userist, only works with mentions [takes params]\n"
 						+ ":ggez: its high noon\n"
 						+ ":vlambeerVan: totally not a steam ripoff\n"
 						+ ":triggered: agent powers\n"
@@ -817,20 +894,26 @@ public class Mspa{
 						+ ":objection: overruled\n"
 						+ ":both: mexicans\n"
 						+ ":dipper: green mario\n"
-						+ ":cmdban: per-server disable my commands... using a command\n"
+						+ ":cmdban: per-server disable my commands... using a command [takes params]\n"
 						+ ":deal: bill cipher best illuminati\n"
 						+ ":mad: c h a o s\n"
 						+ ":sin: ness\n"
 						+ ":meme: by norton\n"
 						+ ":burn: list_of_burn_centers\n"
-						+ ":shoot: stand or be shot\n"
+						+ ":shoot: stand or be shot [takes params]\n"
 						+ ":oneone: where is my obituary\n"
-						+ "as a note, tapkek and lawkek is completely valid, as well as eke and frek and rfke\n"
+						+ "as a note, tapkek and lawkek is completely valid, as well as eke and frek and rfke and hek and ehe\n"
 						+ ":build: it's election day, you know what that means\n"
 						+ ":smash: that's right. the super smash trumps brawl\n"
 						+ ":papabless: hugh\n"
 						+ ":mspalsus: our saviour, art by twinbuilder\n"
-						+ ":encourage: sometimes, you just need a pick-me-up, thanks pope for lots of stuff```");
+						+ ":encourage: sometimes, you just need a pick-me-up, thanks pope for lots of stuff\n"
+						+ ":pepe: that is all\n"
+						+ ":pi: philipl/pifs - the data-free filesystem\n"
+						+ ":joke: whoosh\n"
+						+ ":100: happy 100 servers mspal\n"
+						+ ":guzma: solntse i luna\n"
+						+ ":cents: 2```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -980,7 +1063,7 @@ public class Mspa{
 				chan.sendMessage("New command time.");
 			}
 			else if(msg.equals(":info:")){
-				chan.sendMessage("A Discord4J bot made by <@162345113966608394>. Use :commands: for a commandlist.");
+				chan.sendMessage("A Discord4J bot made by <@162345113966608394> (Nomble#8128). Use :commands: for a commandlist. PM the owner if you have command suggestions.");
 			}
 			else if(msg.equals(":catfacts:")){
 				boolean sub = false;
@@ -1126,63 +1209,75 @@ public class Mspa{
 				chan.sendMessage(lines.get(r));
 			}
 
-			boolean shouldKek = cmdban.get(chan.getGuild().getID()) != null;
-			if(!shouldKek){
-				shouldKek = !cmdban.get(chan.getGuild().getID()).contains(":kek:");
+			boolean shouldKek = true;
+			if(!(chan instanceof IPrivateChannel)){
+				shouldKek = cmdban.get(chan.getGuild().getID()) == null;
+				if(!shouldKek){
+					shouldKek = !cmdban.get(chan.getGuild().getID()).contains(":kek:");
+				}
 			}
-
-			if(matchkek.find() && shouldKek){
-				String keks = matchkek.group().replace(":", "");
-				String justkek = keks.replaceAll("top", "").replaceAll("low", "").replaceAll("tap", "").replaceAll("law", "").replaceAll("fr", "k").replace("rf", "e");
-				int ek = StringUtils.countMatches(justkek, "ek");
-				BufferedImage k = ImageIO.read(new File(keks.contains("tap") || keks.contains("law") ? (keks.contains("fr") || keks.contains("rf") ? "./frak.png" : "./kak.png") : (keks.contains("fr") || keks.contains("rf") ? "./frek.png" : "./kek.png")));
-				if(justkek.startsWith("e") && !(keks.contains("tap") || keks.contains("law"))){
-					LookupTable colors = new LookupTable(0, 4){
-						@Override
-						public int[] lookupPixel(int[] src, int[] dest){
-							dest[0] = (int)(255 - src[0]);
-							dest[1] = (int)(255 - src[1]);
-							dest[2] = (int)(255 - src[2]);
-							return dest;
-						}
-					};
-					LookupOp colop = new LookupOp(colors, new RenderingHints(null));
-					k = colop.filter(k, null);
-					ek = StringUtils.countMatches(justkek, "ke");
+			File outf = new File("./" + e.getMessage().getID() + ".png");
+			try{
+				if(matchkek.find() && shouldKek && !(msg.contains("ek") || msg.contains("ke") || msg.contains("rfe") || msg.contains("fre"))){
+					chan.sendMessage("Sending no keks would violate the 42nd Amendment.");
 				}
-				if(keks.startsWith("l")){ // Low/Law
-					AffineTransform at = AffineTransform.getScaleInstance(1, -1);
-					at.translate(0, -k.getHeight(null));
-					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					k = ato.filter(k, null);
+				matchkek.reset();
+				if(matchkek.find() && shouldKek && (msg.contains("ek") || msg.contains("ke") || msg.contains("rfe") || msg.contains("fre"))){
+					String keks = matchkek.group().replace(":", "");
+					String justkek = keks.replaceAll("top", "").replaceAll("low", "").replaceAll("tap", "").replaceAll("law", "").replaceAll("fr", "k").replaceAll("rf", "e");
+					int ek = StringUtils.countMatches(justkek, "ek");
+					BufferedImage k = ImageIO.read(new File(keks.contains("tap") || keks.contains("law") ? (keks.contains("fr") || keks.contains("rf") ? "./frak.png" : "./kak.png") : (keks.contains("fr") || keks.contains("rf") ? "./frek.png" : "./kek.png")));
+					if(justkek.startsWith("e") && !(keks.contains("tap") || keks.contains("law"))){
+						LookupTable colors = new LookupTable(0, 4){
+							@Override
+							public int[] lookupPixel(int[] src, int[] dest){
+								dest[0] = (int)(255 - src[0]);
+								dest[1] = (int)(255 - src[1]);
+								dest[2] = (int)(255 - src[2]);
+								return dest;
+							}
+						};
+						LookupOp colop = new LookupOp(colors, new RenderingHints(null));
+						k = colop.filter(k, null);
+						ek = StringUtils.countMatches(justkek, "ke");
+					}
+					if(keks.startsWith("l")){ // Low/Law
+						AffineTransform at = AffineTransform.getScaleInstance(1, -1);
+						at.translate(0, -k.getHeight(null));
+						AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						k = ato.filter(k, null);
+					}
+					else if(keks.endsWith("p")){ // Top/Tap
+						AffineTransform at = AffineTransform.getScaleInstance(-1, 1);
+						at.translate(-k.getWidth(null), 0);
+						AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						k = ato.filter(k, null);
+					}
+					else if(keks.endsWith("w")){ // Low/Law
+						AffineTransform at = AffineTransform.getScaleInstance(-1, -1);
+						at.translate(-k.getWidth(null), -k.getHeight(null));
+						AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						k = ato.filter(k, null);
+					}
+					BufferedImage out = new BufferedImage(k.getWidth(null) + (9 * ek), k.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+					Graphics g = out.getGraphics();
+					if(keks.contains("l") && keks.contains("t")){
+						g.setClip(new Ellipse2D.Float(0, 0, k.getWidth(null) + (9 * ek), k.getHeight(null)));
+					}
+					for(int i = 0; i < ek; i++){
+						g.drawImage(k, i * 9, 0, null);
+					}
+					g.dispose();
+					ImageIO.write(out, "png", outf);
+					chan.sendFile(outf);
 				}
-				else if(keks.endsWith("p")){ // Top/Tap
-					AffineTransform at = AffineTransform.getScaleInstance(-1, 1);
-					at.translate(-k.getWidth(null), 0);
-					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					k = ato.filter(k, null);
-				}
-				else if(keks.endsWith("w")){ // Low/Law
-					AffineTransform at = AffineTransform.getScaleInstance(-1, -1);
-					at.translate(-k.getWidth(null), -k.getHeight(null));
-					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					k = ato.filter(k, null);
-				}
-				BufferedImage out = new BufferedImage(k.getWidth(null) + (9 * ek), k.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-				Graphics g = out.getGraphics();
-				if(keks.contains("l") && keks.contains("t")){
-					g.setClip(new Ellipse2D.Float(0, 0, k.getWidth(null) + (9 * ek), k.getHeight(null)));
-				}
-				for(int i = 0; i < ek; i++){
-					g.drawImage(k, i * 9, 0, null);
-				}
-				g.dispose();
-				File outf = new File("./" + e.getMessage().getID() + ".png");
-				ImageIO.write(out, "png", outf);
-				chan.sendFile(outf);
+			}
+			catch(Exception thymeonmyfries){
+				chan.sendMessage("I\'m too kek to handle that kek number.");
+			}
+			finally{
 				outf.delete();
 			}
-
 			FileOutputStream fout = new FileOutputStream(new File("./logs"));
 			ObjectOutputStream oout = new ObjectOutputStream(fout);
 			oout.writeObject(logs);
@@ -1216,6 +1311,11 @@ public class Mspa{
 			fout = new FileOutputStream(new File("./wall"));
 			oout = new ObjectOutputStream(fout);
 			oout.writeObject((Long)wall);
+			oout.close();
+			fout.close();
+			fout = new FileOutputStream(new File("./logmsg"));
+			oout = new ObjectOutputStream(fout);
+			oout.writeObject(logmsg);
 			oout.close();
 			fout.close();
 		}

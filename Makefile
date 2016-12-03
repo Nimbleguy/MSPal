@@ -1,7 +1,7 @@
 # ARTCORD:=com.github.austinv11 Discord4J websocket-rewrite-SNAPSHOT
 ARTCORD:=com.github.austinv11 Discord4J 2.6.1
 ARTBIN:=com.github.kennedyoliveira pastebin4j 1.2.0
-ARTCLEV:=ca.pjer chatter-bot-api 1.4.2
+ARTCLEV:=ca.pjer chatter-bot-api 1.4.3
 ARTLOG:=ch.qos.logback logback-classic 1.1.7
 
 JARGS:=-cp ".:libs/*" Mspa $(shell cat auth.txt)
