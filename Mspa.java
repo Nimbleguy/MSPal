@@ -291,20 +291,15 @@ public class Mspa{
 			public void run(){
 				try{
 					if(!bot.isReady()){
-						try{
-							bot.login();
-							Thread.sleep(10000);
-							if(!bot.isReady()){
-								System.exit(1);
-							}
-						}
-						catch(Exception exc){
+						bot.login();
+						Thread.sleep(10000);
+						if(!bot.isReady()){
 							System.exit(1);
 						}
 					}
 				}
 				catch(Exception exc){
-					exc.printStackTrace();
+					System.exit(1);
 				}
 			}
 
