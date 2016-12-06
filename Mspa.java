@@ -637,8 +637,8 @@ public class Mspa{
 			if(msg.contains(":joke:")){
 				chan.sendFile(new File("./joke.gif"));
 			}
-			if(msg.contains(":100:")){
-				chan.sendFile(new File("./100.png"));
+			if(msg.contains(":celebrate:")){
+				chan.sendFile(new File("./celebrate.png"));
 			}
 			if(msg.contains(":guzma")){
 				chan.sendFile(new File("./guzma.png"));
@@ -906,7 +906,7 @@ public class Mspa{
 						+ ":pepe: that is all\n"
 						+ ":pi: philipl/pifs - the data-free filesystem\n"
 						+ ":joke: whoosh\n"
-						+ ":100: happy 100 servers mspal\n"
+						+ ":celebrate: happy 100 servers mspal\n"
 						+ ":guzma: solntse i luna\n"
 						+ ":cents: 2```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
