@@ -646,6 +646,24 @@ public class Mspa{
 			if(msg.contains(":cents:")){
 				chan.sendFile(new File("./cents.png"));
 			}
+			if(msg.contains(":f:")){
+				chan.sendFile(new File("./f.gif"));
+			}
+			if(msg.contains(":thyme:")){
+				chan.sendFile(new File("./thyme.png"));
+			}
+			if(msg.contains(":...:")){
+				chan.sendFile(new File("./....png"));
+			}
+			if(msg.contains(":wtf:")){
+				chan.sendFile(new File("./wtf.png"));
+			}
+			if(msg.contains(":nodeal:")){
+				chan.sendFile(new File("./nodeal.png"));
+			}
+			if(msg.contains(":whatdidyoudo:")){
+				chan.sendFile(new File("./whatdidyoudo.gif"));
+			}
 
 
 
@@ -828,6 +846,15 @@ public class Mspa{
 				if(msg.toLowerCase().contains("sport")){
 					chan.sendMessage("The FitnessGram Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues. The 20 meter pacer test will begin in 30 seconds. Line up at the start. The running speed starts slowly but gets faster each minute after you hear this signal bodeboop. A sing lap should be completed every time you hear this sound. ding Remember to run in a straight line and run as long as possible. The second time you fail to complete a lap before the sound, your test is over. The test will begin on the word start. On your mark. Get ready!? Start. ding?");
 				}
+				if(msg.toLowerCase().contains("deus vult")){
+					chan.sendMessage("DEUS VULT!");
+				}
+				if(msg.toLowerCase().contains("communis")){
+					chan.sendMessage("Better dead than red.");
+				}
+				if(msg.toLowerCase().contains("bourgeoisie")){
+					chan.sendMessage("SEIZE THE MEANS OF PRODUCTION");
+				}
 			}
 
 			if(msg.equals(":commands:")){
@@ -908,7 +935,13 @@ public class Mspa{
 						+ ":joke: whoosh\n"
 						+ ":celebrate: happy 100 servers mspal\n"
 						+ ":guzma: solntse i luna\n"
-						+ ":cents: 2```");
+						+ ":cents: 2\n"
+						+ ":f: press to pay respects\n"
+						+ ":thyme: waluigi\'s secret spice\n"
+						+ ":...: w h a t a r e y o u d o i n g\n"
+						+ ":wtf: your actions confuse me\n"
+						+ ":whatdidyoudo: cueball\n"
+						+ ":nodeal: but what if bill```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
