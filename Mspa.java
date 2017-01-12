@@ -351,7 +351,7 @@ public class Mspa{
 	}
 
 	@EventSubscriber
-	public void message(MessageReceivedEvent e) throws RateLimitException{
+	public void message(MessageReceivedEvent e){
 		if(e.getMessage().getAuthor().isBot() || e.getMessage() == null || e.getMessage().getContent() == null){
 			return;
 		}
@@ -365,7 +365,13 @@ public class Mspa{
 			return;
 		}
 		try{
-			String msg = e.getMessage().getContent().replaceAll("@everyone", "Kolechia").replaceAll("@here", "North Korea");
+			String msg = "";
+			try{
+				msg = e.getMessage().getContent().replaceAll("@everyone", "Kolechia").replaceAll("@here", "North Korea");
+			}
+			catch(NullPointerException npe){
+				System.exit(1);
+			}
 			IChannel chan = e.getMessage().getChannel();
 			Matcher matchkek = keks.matcher(msg);
 			if(chan instanceof IPrivateChannel){
@@ -435,7 +441,9 @@ public class Mspa{
 						msgs = new ArrayList<String>();
 					}
 					msgs.add(m.getID());
-					logmsg.put(chan.getID(), msgs);
+					synchronized(logmsg){
+						logmsg.put(chan.getID(), msgs);
+					}
 				}
 				while(!rev.empty()){
 					IMessage m = rev.pop();
@@ -640,8 +648,11 @@ public class Mspa{
 			if(msg.contains(":celebrate:")){
 				chan.sendFile(new File("./celebrate.png"));
 			}
-			if(msg.contains(":guzma")){
+			if(msg.contains(":guzma:")){
 				chan.sendFile(new File("./guzma.png"));
+			}
+			if(msg.contains(":gazmu:")){
+				chan.sendFile(new File("./gazmu.png"));
 			}
 			if(msg.contains(":cents:")){
 				chan.sendFile(new File("./cents.png"));
@@ -941,7 +952,8 @@ public class Mspa{
 						+ ":...: w h a t a r e y o u d o i n g\n"
 						+ ":wtf: your actions confuse me\n"
 						+ ":whatdidyoudo: cueball\n"
-						+ ":nodeal: but what if bill```");
+						+ ":nodeal: but what if bill\n"
+						+ ":gazmu: oh [deity] no```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -1341,14 +1353,18 @@ public class Mspa{
 			oout.writeObject((Long)wall);
 			oout.close();
 			fout.close();
-			fout = new FileOutputStream(new File("./logmsg"));
-			oout = new ObjectOutputStream(fout);
-			oout.writeObject(logmsg);
-			oout.close();
-			fout.close();
+			synchronized(logmsg){
+				fout = new FileOutputStream(new File("./logmsg"));
+				oout = new ObjectOutputStream(fout);
+				oout.writeObject(logmsg);
+				oout.close();
+				fout.close();
+			}
 		}
 		catch(Exception exc){
-			exc.printStackTrace();
+			if(!(exc instanceof RateLimitException)){
+				exc.printStackTrace();
+			}
 		}
 	}
 	public class Facts{

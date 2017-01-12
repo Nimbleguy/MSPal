@@ -1,6 +1,7 @@
 # ARTCORD:=com.github.austinv11 Discord4J websocket-rewrite-SNAPSHOT
+ARTCORD:=com.github.austinv11 Discord4J 2.7.0
 # ARTCORD:=com.github.austinv11 Discord4J 2.6.1
-ARTCORD:=com.github.austinv11 Discord4J dev-SNAPSHOT
+# ARTCORD:=com.github.austinv11 Discord4J dev-SNAPSHOT
 ARTBIN:=com.github.kennedyoliveira pastebin4j 1.2.0
 ARTCLEV:=ca.pjer chatter-bot-api 1.4.3
 ARTLOG:=ch.qos.logback logback-classic 1.1.7
