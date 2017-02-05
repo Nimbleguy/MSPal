@@ -826,6 +826,15 @@ public class Mspa{
 					int r = new Random().nextInt(lines.size());
 					chan.sendMessage("At least you didn't say " + lines.get(r) + ".");
 				}
+				if(msg.contains(":reeee:")){
+					chan.sendFile(new File("./reeee.png"));
+				}
+				if(msg.contains(":mortuigi:")){
+					chan.sendFile(new File("./mortuigi.png"));
+				}
+				if(msg.contains(":color:")){
+					chan.sendFile(new File("./color.png"));
+				}
 			}
 			if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
 				if(msg.toLowerCase().contains("hear a joke")){
@@ -962,7 +971,10 @@ public class Mspa{
 							+ ":mimeowl: hail, the most fearsome of conflict shards and ██████. the end of ends ever looms.\n"
 							+ ":pls: the edits\n"
 							+ ":why: no rule34 please\n"
-							+ ":heavy: heavyiswishmakingfairy.psd```");
+							+ ":heavy: heavyiswishmakingfairy.psd\n"
+							+ ":reeee: R E E E E\n"
+							+ ":mortuigi: dead\n"
+							+ ":color: green is not a creative color```");
 				}
 			}
 			else if(msg.equals(":away:") && e.getMessage().getAuthor().getID().equals(owner)){
