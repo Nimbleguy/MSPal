@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.github.kennedyoliveira.pastebin4j.*;
 
-import com.google.code.chatterbotapi.*;
+//import com.google.code.chatterbotapi.*;
 import com.google.gson.Gson;
 
 import java.io.InputStream;
@@ -69,7 +69,7 @@ public class Mspa{
 	public static List<String> cat;
 	public static List<String> dog;
 
-	public static ChatterBotSession chat;
+//	public static ChatterBotSession chat;
 
 	public static Pattern keks = Pattern.compile(":((top)|(low)|(tap)|(law)|(fr)|(rf)|k|e|k)+:");
 	public static Pattern cmdpatban = Pattern.compile(":\\S+?:");
@@ -83,7 +83,7 @@ public class Mspa{
 		try{
 			owner = own;
 			pastebin = bin;
-			chat = new ChatterBotFactory().create(ChatterBotType.CLEVERBOT).createSession();
+//			chat = new ChatterBotFactory().create(ChatterBotType.CLEVERBOT).createSession();
 			bot = new ClientBuilder().withToken(token).login();
 			bot.getDispatcher().registerListener(this);
 			File f = new File("./logs");
@@ -540,7 +540,11 @@ public class Mspa{
 				chan.sendMessage("https://www.youtube.com/watch?v=y6oXW_YiV6g");
 			}
 			if(msg.contains(":boi:")){
-				chan.sendFile(new File("./boi.png"));
+				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
+					chan.sendFile(new File("./eboi.png"));
+				else{
+					chan.sendFile(new File("./boi.png"));
+				}
 			}
 			if(msg.contains(":squids:")){
 				chan.sendFile(new File("./squids.png"));
@@ -674,6 +678,18 @@ public class Mspa{
 			}
 			if(msg.contains(":whatdidyoudo:")){
 				chan.sendFile(new File("./whatdidyoudo.gif"));
+			}
+			if(msg.contains(":fine:")){
+				chan.sendFile(new File("./fine.png"));
+			}
+			if(msg.contains(":imply:")){
+				chan.sendFile(new File("./imply.png"));
+			}
+			if(msg.contains(":laser:")){
+				chan.sendFile(new File("./laser.gif"));
+			}
+			if(msg.contains(":oneeyednameofgod:")){
+				chan.sendFile(new File("./oneeyednameofgod.png"));
 			}
 
 
@@ -835,6 +851,9 @@ public class Mspa{
 				if(msg.contains(":color:")){
 					chan.sendFile(new File("./color.png"));
 				}
+				if(msg.contains(":duck:")){
+					chan.sendFile(new File("./duck.png"));
+                                }
 			}
 			if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
 				if(msg.toLowerCase().contains("hear a joke")){
@@ -894,7 +913,7 @@ public class Mspa{
 						+ ":topkek: literally :kek:\n"
 						+ ":marriage: what do you think\n"
 						+ ":origin: where did the mspal come from?\n"
-						+ ":ask: what does the mspal's pet say [takes params]\n"
+//						+ ":ask: what does the mspal's pet say [takes params]\n"
 						+ ":pitchfork: want to join the mob [may take params]\n"
 						+ ":su: heil mspal, your lord and gem\n"
 						+ ":murder: you egg [takes params]\n"
@@ -963,6 +982,10 @@ public class Mspa{
 						+ ":whatdidyoudo: cueball\n"
 						+ ":nodeal: but what if bill\n"
 						+ ":gazmu: oh [deity] no```");
+				pm.sendMessage("```:fine: everything\n"
+						+ ":imply: did you\n"
+						+ ":laser: less murderous\n"
+						+ ":oneeyednameofgod: most powerful figure in [insert religion here]```"
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -974,7 +997,8 @@ public class Mspa{
 							+ ":heavy: heavyiswishmakingfairy.psd\n"
 							+ ":reeee: R E E E E\n"
 							+ ":mortuigi: dead\n"
-							+ ":color: green is not a creative color```");
+							+ ":color: green is not a creative color\n"
+							+ ":duck: eeeeeee```");
 				}
 			}
 			else if(msg.equals(":away:") && e.getMessage().getAuthor().getID().equals(owner)){
@@ -1035,12 +1059,13 @@ public class Mspa{
 				}
 			}
 			else if(msg.startsWith(":ask: ")){
-				String s = msg.replace(":ask: ", "");
-				String out = chat.think(s);
-				if(s.toLowerCase().contains("what") && s.toLowerCase().contains("your name")){
-					out = "MSPal.";
-				}
-				chan.sendMessage(s.equalsIgnoreCase("What's your favorite idea?") ? "Mine is being creative." : out);
+				//String s = msg.replace(":ask: ", "");
+				//String out = chat.think(s);
+				//if(s.toLowerCase().contains("what") && s.toLowerCase().contains("your name")){
+				//	out = "MSPal.";
+				//}
+				//chan.sendMessage(s.equalsIgnoreCase("What's your favorite idea?") ? "Mine is being creative." : out);
+				chan.sendMessage("Sorry, this command has been disabled (maybe temporarily, maybe not).");
 			}
 			else if(msg.equals(":joaje:") && chan.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_MESSAGES)){
 				if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){

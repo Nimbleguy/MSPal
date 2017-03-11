@@ -1,6 +1,6 @@
 ARTCORD:=com.github.austinv11 Discord4J 2.7.0
 ARTBIN:=com.github.kennedyoliveira pastebin4j 1.2.0
-ARTCLEV:=ca.pjer chatter-bot-api 1.4.5
+#ARTCLEV:=ca.pjer chatter-bot-api 1.4.5
 ARTLOG:=ch.qos.logback logback-classic 1.2.1
 
 JARGS:=-cp ".:libs/*" Mspa $(shell cat auth.txt)
@@ -15,7 +15,7 @@ libs : ivysettings.xml ivy.jar
 	-mkdir libs
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTCORD) -settings ivysettings.xml
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTBIN) -settings ivysettings.xml
-	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTCLEV) -settings ivysettings.xml
+	#java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTCLEV) -settings ivysettings.xml
 	java -jar ivy.jar -retrieve "libs/[artifact](-[classifier]).[ext]" -dependency $(ARTLOG) -settings ivysettings.xml
 
 ivy.jar :
