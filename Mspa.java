@@ -985,7 +985,7 @@ public class Mspa{
 				pm.sendMessage("```:fine: everything\n"
 						+ ":imply: did you\n"
 						+ ":laser: less murderous\n"
-						+ ":oneeyednameofgod: most powerful figure in [insert religion here]```"
+						+ ":oneeyednameofgod: most powerful figure in [insert religion here]```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
