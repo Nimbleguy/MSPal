@@ -852,8 +852,8 @@ public class Mspa{
 				if(msg.contains(":color:")){
 					chan.sendFile(new File("./color.png"));
 				}
-				if(msg.contains(":duck:")){
-					chan.sendFile(new File("./duck.png"));
+				if(msg.contains(":teleduck:")){
+					chan.sendFile(new File("./teleduck.png"));
                                 }
 			}
 			if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
@@ -999,7 +999,7 @@ public class Mspa{
 							+ ":reeee: R E E E E\n"
 							+ ":mortuigi: dead\n"
 							+ ":color: green is not a creative color\n"
-							+ ":duck: eeeeeee```");
+							+ ":teleduck: eeeeeee```");
 				}
 			}
 			else if(msg.equals(":away:") && e.getMessage().getAuthor().getID().equals(owner)){
