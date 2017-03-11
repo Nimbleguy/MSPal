@@ -542,6 +542,7 @@ public class Mspa{
 			if(msg.contains(":boi:")){
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					chan.sendFile(new File("./eboi.png"));
+				}
 				else{
 					chan.sendFile(new File("./boi.png"));
 				}
