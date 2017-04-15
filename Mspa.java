@@ -2,6 +2,8 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.util.MessageList;
+import sx.blah.discord.util.MessageHistory;
+import sx.blah.discord.util.MessageComparator;
 import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
@@ -32,6 +34,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Iterator;
 import java.util.Collections;
+import java.util.Arrays;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.util.regex.Pattern;
@@ -58,7 +61,6 @@ public class Mspa{
 	public static String last = "";
 
 	public static HashMap<String, String[]> logs;
-	public static HashMap<String, List<String>> logmsg;
 
 	public static String owner;
 	public static String pastebin;
@@ -163,17 +165,6 @@ public class Mspa{
 			else{
 				f.createNewFile();
 			}
-			f = new File("./logmsg");
-			if(f.exists()){
-				FileInputStream fin = new FileInputStream(f);
-				ObjectInputStream oin = new ObjectInputStream(fin);
-				logmsg = (HashMap<String, List<String>>)oin.readObject();
-				oin.close();
-				fin.close();
-			}
-			else{
-				f.createNewFile();
-			}
 		}
 		catch(Exception exc){
 			exc.printStackTrace();
@@ -195,9 +186,6 @@ public class Mspa{
 		}
 		if(cmdban == null){
 			cmdban = new HashMap<String, List<String>>();
-		}
-		if(logmsg == null){
-			logmsg = new HashMap<String, List<String>>();
 		}
 	}
 
@@ -390,7 +378,6 @@ public class Mspa{
 					return;
 				}
 				logs.put(chan.getID(), null);
-				logmsg.put(chan.getID(), null);
 				try{
 					if(pastebin != null){
 						PasteBin paste = new PasteBin(new AccountCredentials(pastebin));
@@ -415,39 +402,14 @@ public class Mspa{
 
 			if(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null){
 				String[] info = logs.get(chan.getID());
-				MessageList l = chan.getMessages();
+				IMessage[] l = chan.getFullMessageHistory().asArray();
+				Arrays.sort(l, MessageComparator.DEFAULT);
 				File t = new File("chat", info[0] + ".txt");
 				PrintWriter out = new PrintWriter(new FileOutputStream(t, true));
 				FileInputStream fin = new FileInputStream(t);
 				List<String> ls = IOUtils.readLines(fin, "utf-8");
-				Stack<IMessage> rev = new Stack<IMessage>();
-				for(IMessage m : l){
-					if(ls.size() != 0 && ls.get(ls.size() - 1) != null){
-						if(m.getContent().equals(ls.get(ls.size() - 1))){
-							break;
-						}
-					}
-					else{
-						if(m.getID().equals(info[2])){
-							break;
-						}
-					}
-					if(logmsg.containsKey(chan.getID()) && logmsg.get(chan.getID()) != null && logmsg.get(chan.getID()).contains(m.getID())){
-						break;
-					}
-					rev.push(m);
-					List<String> msgs = logmsg.get(chan.getID());
-					if(!(logmsg.containsKey(chan.getID()) && logmsg.get(chan.getID()) != null)){
-						msgs = new ArrayList<String>();
-					}
-					msgs.add(m.getID());
-					synchronized(logmsg){
-						logmsg.put(chan.getID(), msgs);
-					}
-				}
-				while(!rev.empty()){
-					IMessage m = rev.pop();
-					out.println(m.getAuthor().getName() + ": " + m.getContent());
+				for(int i = Arrays.binarySearch(l, chan.getMessageByID(info[2]), MessageComparator.DEFAULT) + 1; i < l.length; i++){
+					out.println(l[i].getAuthor().getName() + ": " + l[i].getContent());
 				}
 				out.close();
 				String lt = null;
@@ -485,6 +447,45 @@ public class Mspa{
 					String u = bot.getUserByID(logs.get(chan.getID())[1]).getName();
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("There's already a log in effect by " + u + ".");
 				}
+			}
+
+			if(msg.equals(":logall:") && e.getMessage().getAuthor().getID().equals(owner)){
+				IMessage[] l = chan.getFullMessageHistory().asArray();
+				Arrays.sort(l, MessageComparator.REVERSED);
+				File t = new File("chat", e.getMessage().getID() + ".txt");
+				PrintWriter out = new PrintWriter(new FileOutputStream(t, true));
+				String s = "";
+				for(IMessage m : l){
+					s = m.getAuthor().getName() + ": " + m.getContent() + "\n" + s;
+				}
+				out.println(s);
+				out.close();
+				try{
+					chan.sendFile(t);
+					if(pastebin != null){
+						PasteBin paste = new PasteBin(new AccountCredentials(pastebin));
+						Paste p = new Paste();
+						p.setTitle(chan.getName() + " Log");
+						p.setExpiration(PasteExpiration.NEVER);
+						p.setVisibility(PasteVisibility.PUBLIC);
+						p.setHighLight(PasteHighLight.TEXT);
+						FileInputStream fin = new FileInputStream(t);
+						p.setContent(IOUtils.toString(fin, "utf-8"));
+						fin.close();
+						chan.sendMessage(paste.createPaste(p));
+					}
+				}
+				catch(Exception exc){
+					chan.sendMessage("This log failed to send. Please try again, and if that doesn't work please contact the bot owner (details in :info:).");
+					exc.printStackTrace();
+				}
+				finally{
+					t.delete();
+				}
+			}
+			if(msg.equals(":delall:") && e.getMessage().getAuthor().getID().equals(owner) && e.getMessage().getChannel().getModifiedPermissions(bot.getOurUser()).contains(Permissions.MANAGE_MESSAGES)){
+				MessageHistory l = chan.getFullMessageHistory();
+				l.bulkDelete();
 			}
 
 			if(msg.equals(":::") && e.getMessage().getAuthor().getID().equals(owner)){
@@ -692,6 +693,12 @@ public class Mspa{
 			if(msg.contains(":oneeyednameofgod:")){
 				chan.sendFile(new File("./oneeyednameofgod.png"));
 			}
+			if(msg.contains(":memeorial:")){
+				chan.sendFile(new File("./memeorial.png"));
+			}
+			if(msg.contains(":-:")){
+				chan.sendFile(new File("./-.gif"));
+			}
 
 
 
@@ -855,6 +862,16 @@ public class Mspa{
 				if(msg.contains(":teleduck:")){
 					chan.sendFile(new File("./teleduck.png"));
                                 }
+				if(msg.contains(":orchidgodhead:")){
+					FileInputStream fin = new FileInputStream(new File("./orchid"));
+					List<String> lines = IOUtils.readLines(fin, "utf-8");
+					fin.close();
+					int r = new Random().nextInt(lines.size());
+					chan.sendMessage("```" + lines.get(r).replaceAll("topkek", "\n") + "```");
+				}
+				if(msg.contains(":comrade:")){
+					chan.sendFile(new File("./comrade.png"));
+				}
 			}
 			if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
 				if(msg.toLowerCase().contains("hear a joke")){
@@ -894,6 +911,15 @@ public class Mspa{
 				}
 				if(msg.toLowerCase().contains("bourgeoisie")){
 					chan.sendMessage("SEIZE THE MEANS OF PRODUCTION");
+				}
+				if(msg.toLowerCase().contains("bamboozle")){
+					chan.sendMessage("Get your 100% Guarenteed Bamboozle-Free Bamboozle Insurance here!");
+				}
+				if(msg.toLowerCase().contains("poland")){
+					chan.sendMessage("Can Poland into space?");
+				}
+				if(msg.toLowerCase().contains("cool") && msg.toLowerCase().contains("new")){
+					chan.sendMessage("There comes a time in every young Homestuck?s life when they must face the fact that a notable comic author has swindled them into getting on a bus labeled ?cool updates?, only to swerve said bus off the highway and into a precipitous gulch of unmitigated sadstuck. But the old wives tale says that sadstuck was just a thing that happened in our fanfics, the bus children wailed. That?s what they said about the tricksters too, a veteran child in the back replied. They said the tricksters would never see the light of canon, but where are the doubters now? Where are they now. Propping up six feet of dirt is where. The veteran child is weirding everybody out, so they stop looking at him, and turn to the driver. But the driver is now a spooky skeleton and the kids lose their shit. The skeleton head does a creepy 180, and speaks his scary curse. Heed me bus youths, for I am the ghost of future sadstuck. I have traveled back in time and am on a bus for some reason I guess, to punish you for your maudlin fics. For every time you murmured sadstuck while having a feeling, for every fic you pastebinned by candlelight, my curse has grown stronger, and my legend, dumber. Then the skeleton ran out of stuff to say, and looking a little embarrassed, turned around again to keep driving. Then he screamed once he remembered the bus was falling.");
 				}
 			}
 
@@ -986,7 +1012,10 @@ public class Mspa{
 				pm.sendMessage("```:fine: everything\n"
 						+ ":imply: did you\n"
 						+ ":laser: less murderous\n"
-						+ ":oneeyednameofgod: most powerful figure in [insert religion here]```");
+						+ ":oneeyednameofgod: most powerful figure in [insert religion here]\n"
+						+ ":memeorial: flip the iceberg\n"
+						+ "contact bot owner (:info:) if you want a full-channel log or delete\n"
+						+ ":-: ;-;7```");
 				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
@@ -999,7 +1028,8 @@ public class Mspa{
 							+ ":reeee: R E E E E\n"
 							+ ":mortuigi: dead\n"
 							+ ":color: green is not a creative color\n"
-							+ ":teleduck: eeeeeee```");
+							+ ":teleduck: eeeeeee\n"
+							+ ":comrade: together we shall prevail```");
 				}
 			}
 			else if(msg.equals(":away:") && e.getMessage().getAuthor().getID().equals(owner)){
@@ -1391,13 +1421,6 @@ public class Mspa{
 			oout.writeObject((Long)wall);
 			oout.close();
 			fout.close();
-			synchronized(logmsg){
-				fout = new FileOutputStream(new File("./logmsg"));
-				oout = new ObjectOutputStream(fout);
-				oout.writeObject(logmsg);
-				oout.close();
-				fout.close();
-			}
 		}
 		catch(Exception exc){
 			if(!(exc instanceof RateLimitException)){
