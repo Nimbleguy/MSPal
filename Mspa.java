@@ -924,6 +924,7 @@ public class Mspa{
 			}
 
 			if(msg.equals(":commands:")){
+				e.getMessage().reply("The list of commands has been sent to you via DM.");
 				IPrivateChannel pm = bot.getOrCreatePMChannel(e.getMessage().getAuthor());
 				pm.sendMessage("```All commands that take parameters are in this format: :command: parameter\n"
 						+ ":mspa: mspal\n"
