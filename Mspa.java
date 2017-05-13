@@ -313,8 +313,8 @@ public class Mspa{
 			IChannel chan = e.getOldMessage().getChannel();
 			String oldMsg = e.getOldMessage().getContent();
 			String newMsg = e.getNewMessage().getContent();
-			if(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null){
-				String[] info = logs.get(chan.getID());
+			if(logs.containsKey(chan.getStringID()) && logs.get(chan.getStringID()) != null){
+				String[] info = logs.get(chan.getStringID());
 				File t = new File("chat", info[0] + ".txt");
 				FileInputStream fin = new FileInputStream(t);
 				List<String> l = IOUtils.readLines(fin, "utf-8");
@@ -343,13 +343,16 @@ public class Mspa{
 		if(e.getMessage().getAuthor().isBot() || e.getMessage() == null || e.getMessage().getContent() == null){
 			return;
 		}
-		if(e.getMessage().getAuthor().getID().equals(bot.getOurUser().getID())){
+		if(e.getMessage().getAuthor().getStringID().equals(bot.getOurUser().getStringID())){
 			return;
 		}
 		if(!(e.getMessage().getChannel() instanceof IPrivateChannel) && !e.getMessage().getChannel().getModifiedPermissions(bot.getOurUser()).contains(Permissions.READ_MESSAGES)){
 			return;
 		}
-		if(bans.get(e.getMessage().getChannel().getID()) != null && bans.get(e.getMessage().getChannel().getID()).contains(e.getMessage().getAuthor().getID())){
+		if(bans.get(e.getMessage().getChannel().getStringID()) != null && bans.get(e.getMessage().getChannel().getStringID()).contains(e.getMessage().getAuthor().getStringID())){
+			return;
+		}
+		if(e.getChannel().getMessageHistory().getLatestMessage().getLongID() != e.getMessage().getLongID()){
 			return;
 		}
 		try{
@@ -367,7 +370,7 @@ public class Mspa{
 			}
 
 			if(msg.equals(":endlog:")){
-				String[] f = logs.get(chan.getID());
+				String[] f = logs.get(chan.getStringID());
 				File t = new File("chat", f[0] + ".txt");
 				try{
 					chan.sendFile(t);
@@ -377,7 +380,7 @@ public class Mspa{
 					exc.printStackTrace();
 					return;
 				}
-				logs.put(chan.getID(), null);
+				logs.put(chan.getStringID(), null);
 				try{
 					if(pastebin != null){
 						PasteBin paste = new PasteBin(new AccountCredentials(pastebin));
@@ -400,18 +403,8 @@ public class Mspa{
 				}
 			}
 
-			if(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null){
-				String[] info = logs.get(chan.getID());
-				IMessage[] l = chan.getFullMessageHistory().asArray();
-				Arrays.sort(l, MessageComparator.DEFAULT);
-				File t = new File("chat", info[0] + ".txt");
-				PrintWriter out = new PrintWriter(new FileOutputStream(t, true));
-				FileInputStream fin = new FileInputStream(t);
-				List<String> ls = IOUtils.readLines(fin, "utf-8");
-				for(int i = Arrays.binarySearch(l, chan.getMessageByID(info[2]), MessageComparator.DEFAULT) + 1; i < l.length; i++){
-					out.println(l[i].getAuthor().getName() + ": " + l[i].getContent());
-				}
-				out.close();
+			if(logs.containsKey(chan.getStringID()) && logs.get(chan.getStringID()) != null){
+				String[] info = logs.get(chan.getStringID());
 				String lt = null;
 				if(info.length < 4){
 					chan.sendMessage("Just a reminder: This log is still going on. Type :endlog: to end it. This message wil **not** appear in the log.");
@@ -424,35 +417,46 @@ public class Mspa{
 				else{
 					lt = info[3];
 				}
-				logs.put(chan.getID(), new String[] {info[0], info[1], e.getMessage().getID(), lt});
+				logs.put(chan.getStringID(), new String[] {info[0], info[1], e.getMessage().getStringID(), lt});
+				MessageHistory l = chan.getMessageHistoryTo(info[2]);
+				l.sort(MessageComparator.DEFAULT);
+				File t = new File("chat", info[0] + ".txt");
+				PrintWriter out = new PrintWriter(new FileOutputStream(t, true));
+				FileInputStream fin = new FileInputStream(t);
+				List<String> ls = IOUtils.readLines(fin, "utf-8");
+				for(IMessage im : l){
+					out.println(im.getAuthor().getName() + ": " + im.getContent());
+				}
+				out.close();
 			}
 
-			if(!(chan instanceof IPrivateChannel) && cmdban.get(chan.getGuild().getID()) != null){
+			if(!(chan instanceof IPrivateChannel) && cmdban.get(chan.getGuild().getStringID()) != null){
 				Matcher banmatch = cmdpatban.matcher(msg);
 				while(banmatch.find()){
 					String s = banmatch.group();
-					if(cmdban.get(chan.getGuild().getID()).contains(s)){
+					if(cmdban.get(chan.getGuild().getStringID()).contains(s)){
 						msg = msg.replaceAll(s, s.replaceAll(":", "||"));
 					}
 				}
 			}
 
 			if(msg.equals(":startlog:")){
-				if(!(logs.containsKey(chan.getID()) && logs.get(chan.getID()) != null)){
-					String[] v = new String[] {e.getMessage().getID(), e.getMessage().getAuthor().getID(), e.getMessage().getID(), String.valueOf(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime())};
-					logs.put(chan.getID(), v);
+				if(!(logs.containsKey(chan.getStringID()) && logs.get(chan.getStringID()) != null)){
+					chan.sendMessage("Logs are in a bad state right now, and will be fixed soon. You can still attempt though.");
+					String[] v = new String[] {e.getMessage().getStringID(), e.getMessage().getAuthor().getStringID(), e.getMessage().getStringID(), String.valueOf(Timestamp.valueOf(e.getMessage().getTimestamp()).getTime())};
+					logs.put(chan.getStringID(), v);
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("Log started.");
 				}
 				else{
-					String u = bot.getUserByID(logs.get(chan.getID())[1]).getName();
+					String u = bot.getUserByID(logs.get(chan.getStringID())[1]).getName();
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("There's already a log in effect by " + u + ".");
 				}
 			}
 
-			if(msg.equals(":logall:") && e.getMessage().getAuthor().getID().equals(owner)){
+			if(msg.equals(":logall:") && e.getMessage().getAuthor().getStringID().equals(owner)){
 				IMessage[] l = chan.getFullMessageHistory().asArray();
 				Arrays.sort(l, MessageComparator.REVERSED);
-				File t = new File("chat", e.getMessage().getID() + ".txt");
+				File t = new File("chat", e.getMessage().getStringID() + ".txt");
 				PrintWriter out = new PrintWriter(new FileOutputStream(t, true));
 				String s = "";
 				for(IMessage m : l){
@@ -483,12 +487,59 @@ public class Mspa{
 					t.delete();
 				}
 			}
-			if(msg.equals(":delall:") && e.getMessage().getAuthor().getID().equals(owner) && e.getMessage().getChannel().getModifiedPermissions(bot.getOurUser()).contains(Permissions.MANAGE_MESSAGES)){
+			if(msg.startsWith(":logbet: ") && e.getMessage().getAuthor().getStringID().equals(owner) && msg.split(" ").length == 3){
+				String fid = msg.split(" ")[1];
+				String sid = msg.split(" ")[2];
+				IMessage[] l = chan.getFullMessageHistory().asArray();
+
+				boolean log = false;
+				Arrays.sort(l, MessageComparator.REVERSED);
+				File t = new File("chat", e.getMessage().getStringID() + ".txt");
+				PrintWriter out = new PrintWriter(new FileOutputStream(t, true));
+				String s = "";
+				for(IMessage m : l){
+					if(m.getStringID().equals(fid)){
+						log = true;
+					}
+					else if(m.getStringID().equals(sid)){
+						break;
+					}
+
+					if(log){
+						s = m.getAuthor().getName() + ": " + m.getContent() + "\n" + s;
+					}
+				}
+				out.println(s);
+				out.close();
+				try{
+					chan.sendFile(t);
+					if(pastebin != null){
+						PasteBin paste = new PasteBin(new AccountCredentials(pastebin));
+						Paste p = new Paste();
+						p.setTitle(chan.getName() + " Log");
+						p.setExpiration(PasteExpiration.NEVER);
+						p.setVisibility(PasteVisibility.PUBLIC);
+						p.setHighLight(PasteHighLight.TEXT);
+						FileInputStream fin = new FileInputStream(t);
+						p.setContent(IOUtils.toString(fin, "utf-8"));
+						fin.close();
+						chan.sendMessage(paste.createPaste(p));
+					}
+				}
+				catch(Exception exc){
+					chan.sendMessage("This log failed to send. Please try again, and if that doesn't work please contact the bot owner (details in :info:).");
+					exc.printStackTrace();
+				}
+				finally{
+					t.delete();
+				}
+			}
+			if(msg.equals(":delall:") && e.getMessage().getAuthor().getStringID().equals(owner) && e.getMessage().getChannel().getModifiedPermissions(bot.getOurUser()).contains(Permissions.MANAGE_MESSAGES)){
 				MessageHistory l = chan.getFullMessageHistory();
 				l.bulkDelete();
 			}
 
-			if(msg.equals(":::") && e.getMessage().getAuthor().getID().equals(owner)){
+			if(msg.equals(":::") && e.getMessage().getAuthor().getStringID().equals(owner)){
 				chan.sendMessage(last);
 				e.getMessage().delete();
 			}
@@ -541,7 +592,7 @@ public class Mspa{
 				chan.sendMessage("https://www.youtube.com/watch?v=y6oXW_YiV6g");
 			}
 			if(msg.contains(":boi:")){
-				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
+				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getStringID().equals(lock)){
 					chan.sendFile(new File("./eboi.png"));
 				}
 				else{
@@ -567,7 +618,7 @@ public class Mspa{
 				chan.sendFile(new File("./kappa.png"));
 			}
 			if(msg.contains(":shame:")){
-				chan.sendMessage("To the Shame Corner with <@" + e.getMessage().getAuthor().getID() + ">.");
+				chan.sendMessage("To the Shame Corner with <@" + e.getMessage().getAuthor().getStringID() + ">.");
 			}
 			if(msg.contains(":tom:")){
 				chan.sendFile(new File("./tom.png"));
@@ -699,6 +750,9 @@ public class Mspa{
 			if(msg.contains(":-:")){
 				chan.sendFile(new File("./-.gif"));
 			}
+			if(msg.contains(":holy:")){
+				chan.sendFile(new File("./holy.png"));
+			}
 
 
 
@@ -818,7 +872,7 @@ public class Mspa{
 					chan.sendMessage("We don't have that pitchfork in stock.");
 				}
 			}
-			if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
+			if(!(chan instanceof IPrivateChannel) && chan.getGuild().getStringID().equals(lock)){
 				if(msg.contains(":bone:")){
 					chan.sendFile(new File("./bone.gif"));
 				}
@@ -838,7 +892,7 @@ public class Mspa{
 					chan.sendFile(new File("./why.png"));
 				}
 				if(msg.contains(":doptime:")){
-					chan.sendMessage("It's Doptime! with <@" + e.getMessage().getAuthor().getID() + ">!");
+					chan.sendMessage("It's Doptime! with <@" + e.getMessage().getAuthor().getStringID() + ">!");
 				}
 				if(msg.contains(":heavy:")){
 					chan.sendFile(new File("./heavy.png"));
@@ -873,7 +927,7 @@ public class Mspa{
 					chan.sendFile(new File("./comrade.png"));
 				}
 			}
-			if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
+			if(joaje.containsKey(chan.getStringID()) && joaje.get(chan.getStringID()) != null){
 				if(msg.toLowerCase().contains("hear a joke")){
 					chan.sendMessage("My ex-wife still misses me...");
 					chan.sendMessage("But her aim is getting better!");
@@ -1015,9 +1069,10 @@ public class Mspa{
 						+ ":laser: less murderous\n"
 						+ ":oneeyednameofgod: most powerful figure in [insert religion here]\n"
 						+ ":memeorial: flip the iceberg\n"
-						+ "contact bot owner (:info:) if you want a full-channel log or delete\n"
-						+ ":-: ;-;7```");
-				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
+						+ "contact bot owner (:info:) if you want a full-channel, part-channel log, or delete\n"
+						+ ":-: ;-;7\n"
+						+ ":holy: the history of the church of mspal```");
+				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getStringID().equals(lock)){
 					pm.sendMessage("```:rip: i can't believe america is dead\n"
 							+ ":bone: the prize is a bone\n"
 							+ ":themage: тхе маге\n"
@@ -1033,7 +1088,7 @@ public class Mspa{
 							+ ":comrade: together we shall prevail```");
 				}
 			}
-			else if(msg.equals(":away:") && e.getMessage().getAuthor().getID().equals(owner)){
+			else if(msg.equals(":away:") && e.getMessage().getAuthor().getStringID().equals(owner)){
 				bot.changePresence(true);
 				bot.changeStatus(Status.game("Maintenance"));
 			}
@@ -1100,12 +1155,12 @@ public class Mspa{
 				chan.sendMessage("Sorry, this command has been disabled (maybe temporarily, maybe not).");
 			}
 			else if(msg.equals(":joaje:") && chan.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_MESSAGES)){
-				if(joaje.containsKey(chan.getID()) && joaje.get(chan.getID()) != null){
-					joaje.put(chan.getID(), null);
+				if(joaje.containsKey(chan.getStringID()) && joaje.get(chan.getStringID()) != null){
+					joaje.put(chan.getStringID(), null);
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("joaje disabled");
 				}
 				else{
-					joaje.put(chan.getID(), "");
+					joaje.put(chan.getStringID(), "");
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("joaje enabled");
 				}
 			}
@@ -1122,16 +1177,16 @@ public class Mspa{
 					chan.sendMessage("Sorry Dave, but I can't let you do that.");
 				}
 				else{
-					if(muda.contains(e.getMessage().getAuthor().getID()) || muda.contains(e.getMessage().getAuthor().getName())){
-						chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> did not reach the Nuclear Throne!");
+					if(muda.contains(e.getMessage().getAuthor().getStringID()) || muda.contains(e.getMessage().getAuthor().getName())){
+						chan.sendMessage("<@" + e.getMessage().getAuthor().getStringID() + "> did not reach the Nuclear Throne!");
 					}
 					else{
 						int r = new Random().nextInt(4);
 						if(r == 2){
-							chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> tripped and accidentally commited seppuku!");
+							chan.sendMessage("<@" + e.getMessage().getAuthor().getStringID() + "> tripped and accidentally commited seppuku!");
 						}
 						else{
-							chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> viciously murdered " + muda + "!");
+							chan.sendMessage("<@" + e.getMessage().getAuthor().getStringID() + "> viciously murdered " + muda + "!");
 						}
 					}
 				}
@@ -1142,16 +1197,16 @@ public class Mspa{
                                         chan.sendMessage("Sorry Dave, but I can't let you do that.");
                                 }
                                 else{
-                                        if(muda.contains(e.getMessage().getAuthor().getID()) || muda.contains(e.getMessage().getAuthor().getName())){
-                                                chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> joined EZIC!");
+                                        if(muda.contains(e.getMessage().getAuthor().getStringID()) || muda.contains(e.getMessage().getAuthor().getName())){
+                                                chan.sendMessage("<@" + e.getMessage().getAuthor().getStringID() + "> joined EZIC!");
                                         }
                                         else{
                                                 int r = new Random().nextInt(4);
                                                 if(r == 2){
-                                                        chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> tripped and accidentally commited sudoku!");
+                                                        chan.sendMessage("<@" + e.getMessage().getAuthor().getStringID() + "> tripped and accidentally commited sudoku!");
                                                 }
                                                 else{
-                                                        chan.sendMessage("<@" + e.getMessage().getAuthor().getID() + "> shot " + muda + "!");
+                                                        chan.sendMessage("<@" + e.getMessage().getAuthor().getStringID() + "> shot " + muda + "!");
                                                 }
                                         }
                                 }
@@ -1160,7 +1215,7 @@ public class Mspa{
 				FileInputStream fin = new FileInputStream(new File("./zodiac"));
 				List<String> lines = IOUtils.readLines(fin, "utf-8");
 				fin.close();
-				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getID().equals(lock)){
+				if(!(chan instanceof IPrivateChannel) && chan.getGuild().getStringID().equals(lock)){
 					fin = new FileInputStream(new File("./zodiaclock"));
 					lines.addAll(IOUtils.readLines(fin, "utf-8"));
 					fin.close();
@@ -1168,7 +1223,7 @@ public class Mspa{
 				int r = new Random().nextInt(lines.size());
 				chan.sendMessage(lines.get(r));
 			}
-			else if(msg.equals(":newcmd:") && e.getMessage().getAuthor().getID().equals(owner)){
+			else if(msg.equals(":newcmd:") && e.getMessage().getAuthor().getStringID().equals(owner)){
 				chan.sendMessage("New command time.");
 			}
 			else if(msg.equals(":info:")){
@@ -1177,11 +1232,11 @@ public class Mspa{
 			else if(msg.equals(":catfacts:")){
 				boolean sub = false;
 				synchronized(cat){
-					if(cat.contains(e.getMessage().getAuthor().getID())){
-						cat.remove(e.getMessage().getAuthor().getID());
+					if(cat.contains(e.getMessage().getAuthor().getStringID())){
+						cat.remove(e.getMessage().getAuthor().getStringID());
 					}
 					else{
-						cat.add(e.getMessage().getAuthor().getID());
+						cat.add(e.getMessage().getAuthor().getStringID());
 						sub = true;
 					}
 				}
@@ -1198,11 +1253,11 @@ public class Mspa{
 			else if(msg.equals(":dogfacts:")){
 				boolean sub = false;
 				synchronized(dog){
-					if(dog.contains(e.getMessage().getAuthor().getID())){
-						dog.remove(e.getMessage().getAuthor().getID());
+					if(dog.contains(e.getMessage().getAuthor().getStringID())){
+						dog.remove(e.getMessage().getAuthor().getStringID());
 					}
 					else{
-						dog.add(e.getMessage().getAuthor().getID());
+						dog.add(e.getMessage().getAuthor().getStringID());
 						sub = true;
 					}
 				}
@@ -1231,24 +1286,24 @@ public class Mspa{
 			}
 			else if(msg.startsWith(":ignore: <@") && chan.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_MESSAGES)){
 				String s = msg.replace(":ignore: <@", "").replace(">", "").replace("!", "");
-				if(bans.get(e.getMessage().getChannel().getID()) != null){
-					if(bans.get(e.getMessage().getChannel().getID()).contains(s)){
-						List<String> li = bans.get(e.getMessage().getChannel().getID());
+				if(bans.get(e.getMessage().getChannel().getStringID()) != null){
+					if(bans.get(e.getMessage().getChannel().getStringID()).contains(s)){
+						List<String> li = bans.get(e.getMessage().getChannel().getStringID());
 						li.remove(s);
-						bans.put(e.getMessage().getChannel().getID(), li);
+						bans.put(e.getMessage().getChannel().getStringID(), li);
 						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("<@" + s + "> has been unblocked!");
 					}
 					else{
-						List<String> li = bans.get(e.getMessage().getChannel().getID());
+						List<String> li = bans.get(e.getMessage().getChannel().getStringID());
 						li.add(s);
-						bans.put(e.getMessage().getChannel().getID(), li);
+						bans.put(e.getMessage().getChannel().getStringID(), li);
 						bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("<@" + s + "> has been locked from using my commands!");
 					}
 				}
 				else{
 					List<String> li = new ArrayList<String>();
 					li.add(s);
-					bans.put(e.getMessage().getChannel().getID(), li);
+					bans.put(e.getMessage().getChannel().getStringID(), li);
 					bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage("<@" + s + "> has been locked from using my commands!");
 				}
 			}
@@ -1282,16 +1337,16 @@ public class Mspa{
 				}
 				chan.sendMessage(out);
 			}
-			else if(msg.startsWith(":cmdban: ") && (e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_PERMISSIONS) || e.getMessage().getAuthor().getID().equals(owner)) && !(chan instanceof IPrivateChannel)){
+			else if(msg.startsWith(":cmdban: ") && (e.getMessage().getChannel().getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.MANAGE_PERMISSIONS) || e.getMessage().getAuthor().getStringID().equals(owner)) && !(chan instanceof IPrivateChannel)){
 				Matcher m = cmdpatban.matcher(msg.replace(":cmdban: ", "").replace("||", ":")).reset();
 				if(m.find()){
 					String s = m.group();
 					if(!s.contains(":cmdban:")){
-						if(cmdban.get(chan.getGuild().getID()) == null){
-							cmdban.put(chan.getGuild().getID(), new ArrayList<String>());
+						if(cmdban.get(chan.getGuild().getStringID()) == null){
+							cmdban.put(chan.getGuild().getStringID(), new ArrayList<String>());
 						}
-						List<String> l = cmdban.get(chan.getGuild().getID());
-						if(cmdban.get(chan.getGuild().getID()).contains(s)){
+						List<String> l = cmdban.get(chan.getGuild().getStringID());
+						if(cmdban.get(chan.getGuild().getStringID()).contains(s)){
 							l.remove(s);
 							bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been unbanned!");
 						}
@@ -1299,14 +1354,14 @@ public class Mspa{
 							l.add(s);
 							bot.getOrCreatePMChannel(e.getMessage().getAuthor()).sendMessage(s + " has been banned!");
 						}
-						cmdban.put(chan.getGuild().getID(), l);
+						cmdban.put(chan.getGuild().getStringID(), l);
 					}
 				}
 			}
 			else if(msg.startsWith(":;: ")){
 				String[] s = msg.replace(":;: ", "").split(" ;:; ");
 				IChannel i = bot.getChannelByID(s[0]);
-				if(i.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.ADMINISTRATOR) || e.getMessage().getAuthor().getID().equals(owner)){
+				if(i.getModifiedPermissions(e.getMessage().getAuthor()).contains(Permissions.ADMINISTRATOR) || e.getMessage().getAuthor().getStringID().equals(owner)){
 					i.sendMessage(s[1]);
 				}
 			}
@@ -1320,12 +1375,12 @@ public class Mspa{
 
 			boolean shouldKek = true;
 			if(!(chan instanceof IPrivateChannel)){
-				shouldKek = cmdban.get(chan.getGuild().getID()) == null;
+				shouldKek = cmdban.get(chan.getGuild().getStringID()) == null;
 				if(!shouldKek){
-					shouldKek = !cmdban.get(chan.getGuild().getID()).contains(":kek:");
+					shouldKek = !cmdban.get(chan.getGuild().getStringID()).contains(":kek:");
 				}
 			}
-			File outf = new File("./" + e.getMessage().getID() + ".png");
+			File outf = new File("./" + e.getMessage().getStringID() + ".png");
 			try{
 				if(matchkek.find() && shouldKek && !(msg.contains("ek") || msg.contains("ke") || msg.contains("rfe") || msg.contains("fre"))){
 					chan.sendMessage("Sending no keks would violate the 42nd Amendment.");
