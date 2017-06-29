@@ -12,7 +12,7 @@ import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 
-public class Bot{
+public class Bot implements IListener<ReadyEvent>{
 	private IDiscordClient bot;
 	private PasteBin paste;
 
@@ -21,7 +21,7 @@ public class Bot{
 	private List<ISection> sects;
 
 	public Bot(String t, String o, String p){
-		bot = new ClientBuilder().withToken(t).withRecommendedShardCount().build();
+		bot = new ClientBuilder().withToken(t).build();
 
 		if(p != null){
 			paste = new PasteBin(new AccountCredentials(p));
@@ -52,8 +52,8 @@ public class Bot{
 		return sects;
 	}
 
-	@EventSubscriber
-	public void onReady(ReadyEvent e){
+	@Override
+	public void handle(ReadyEvent e){
 		e.getClient().online(":info:");
 	}
 }

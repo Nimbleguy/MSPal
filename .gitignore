@@ -1,6 +1,7 @@
 ivy.jar
 pal.jar
 auth.txt
+mspal.log
 bin
 bin/**
 ext/**
