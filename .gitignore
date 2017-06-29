@@ -1,0 +1,10 @@
+ivy.jar
+pal.jar
+auth.txt
+bin
+bin/**
+ext/**
+lib
+lib/**
+res
+reactions/*/*
