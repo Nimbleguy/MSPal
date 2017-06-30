@@ -73,7 +73,7 @@ public class SectionReaction implements ISection{
 
 	@Override
 	public String[] desc(){
-		return new String[] {"regional_indicator_r", "Reaction", "For all your reaction images."};
+		return new String[] {"slight_smile", "Reaction", "For all your reactions.", ":slightly_smiling:"};
 	}
 
 	@Override

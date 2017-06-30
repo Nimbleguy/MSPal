@@ -12,6 +12,7 @@ import nomble.MSPal.Section.ISection;
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IEmbed;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IPrivateChannel;
 import sx.blah.discord.handle.obj.Permissions;
@@ -37,6 +38,7 @@ public class SectionBot implements ISection{
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 			if(c.equals("help") || c.equals("commands") || c.equals("info")){
+				IChannel ic = e.getMessage().getChannel();
 				RequestBuffer.request(() -> {
 					EmbedBuilder b = new EmbedBuilder();
 					Random r = new Random(l);
@@ -44,27 +46,28 @@ public class SectionBot implements ISection{
 					b.withColor(r.nextInt(256), r.nextInt(256), r.nextInt(256));
 					b.withTitle("General");
 
-					IChannel ic = e.getMessage().getChannel();
 					if(ic instanceof IPrivateChannel || ic.getModifiedPermissions(e.getClient().getOurUser()).contains(Permissions.ADD_REACTIONS)){
 						b.withDescription("To go to a category, select the corresponding reaction.");
 					}
 					else{
-						b.withDescription("Please use this command in a dm, as reaction permissions are disabled.");
+						b.withDescription("Please use this command in a dm, as reaction permissions are disabled on this channel.");
 					}
 
 					for(ISection is : main.getSections()){
-						b.appendField(is.desc()[0] + " " + is.desc()[1] + " Commands", is.desc()[2], true);
+						b.appendField(":" + is.desc()[0] + ": " + is.desc()[1] + " Commands", is.desc()[2], true);
 					}
 
 					b.withFooterText("Made by Nomble#8128");
 
-					IMessage m = ic.sendMessage(b.build());
-					RequestBuffer.request(() -> {
-						for(ISection is : main.getSections()){
-							m.addReaction(EmojiManager.getForAlias(is.desc()[0]));
-						}
-					});
+					ic.sendMessage(b.build());
 				});
+
+				IMessage m = ic.sendMessage("** **");
+				for(ISection is : main.getSections()){
+					RequestBuffer.request(() -> {
+						m.addReaction(is.desc()[3]);
+					});
+				}
 			}
 		}
 	}
@@ -76,7 +79,7 @@ public class SectionBot implements ISection{
 
 	@Override
 	public String[] desc(){
-		return new String[] {"regional_indicator_b", "Bot", "General commands and info."};
+		return new String[] {"desktop", "Bot", "General commands and info.", ":desktop_computer:"};
 	}
 
 	@Override

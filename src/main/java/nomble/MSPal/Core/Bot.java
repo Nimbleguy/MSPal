@@ -38,6 +38,9 @@ public class Bot implements IListener<ReadyEvent>{
 	public void init(){
 		sects.add(new SectionReaction(bot));
 		sects.add(new SectionBot(bot, this));
+		if(paste != null){
+			sects.add(new SectionLog(bot, this));
+		}
 
 		bot.getDispatcher().registerListener(this);
 		for(ISection s : sects){
@@ -50,6 +53,25 @@ public class Bot implements IListener<ReadyEvent>{
 
 	public List<ISection> getSections(){
 		return sects;
+	}
+
+	public boolean canUpload(){
+		return paste != null;
+	}
+
+	public String upload(String n, String s){
+		if(paste != null){
+			Paste p = new Paste();
+			p.setTitle(n);
+			p.setExpiration(PasteExpiration.NEVER);
+			p.setHighLight(PasteHighLight.TEXT);
+			p.setVisibility(PasteVisibility.UNLISTED);
+			p.setContent(s);
+			return paste.createPaste(p);
+		}
+		else{
+			return null;
+		}
 	}
 
 	@Override
