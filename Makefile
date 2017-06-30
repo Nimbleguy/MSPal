@@ -61,7 +61,7 @@ run : $(JAR)
 	java $(PROP) -jar $(JAR) $(ARGS)
 
 debug : build
-	java -Xdebug -Xnoagent -Djava.compiler=NONE  -Xrunjdwp:transport=dt_socket,server=y,address=8888,suspend=y $(PROP) $(JAR) $(ARGS)
+	java -Xdebug -Xnoagent -Djava.compiler=NONE  -Xrunjdwp:transport=dt_socket,server=y,address=8888,suspend=y $(PROP) -jar $(JAR) $(ARGS)
 
 jdb :
 	jdb -attach localhost:8888

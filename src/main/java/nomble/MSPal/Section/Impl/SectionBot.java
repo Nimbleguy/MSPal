@@ -39,7 +39,7 @@ public class SectionBot implements ISection{
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 			if(c.equals("help") || c.equals("commands") || c.equals("info")){
 				IChannel ic = e.getMessage().getChannel();
-				RequestBuffer.request(() -> {
+				IMessage m = RequestBuffer.request(() -> {
 					EmbedBuilder b = new EmbedBuilder();
 					Random r = new Random(l);
 					b.withAuthorName(":mspa: help");
@@ -47,22 +47,29 @@ public class SectionBot implements ISection{
 					b.withTitle("General");
 
 					if(ic instanceof IPrivateChannel || ic.getModifiedPermissions(e.getClient().getOurUser()).contains(Permissions.ADD_REACTIONS)){
-						b.withDescription("To go to a category, select the corresponding reaction.");
+						b.withDescription("To go to a category, select the corresponding reaction.\n");
+						if(!Util.getPrefix(l).equals("")){
+							b.appendDescription("Current command prefix: **" + Util.getPrefix(l) + "**. ");
+						}
+						if(!Util.getSuffix(l).equals("")){
+							b.appendDescription("Current command suffix: **" + Util.getSuffix(l) + "**. ");
+						}
+						b.appendDescription("\nCommand format: " + Util.getPrefix(l) + "command" + Util.getSuffix(l) + " [argument 1] [argument 2] [argument 3]...");
 					}
 					else{
 						b.withDescription("Please use this command in a dm, as reaction permissions are disabled on this channel.");
 					}
 
+					int i = 1;
 					for(ISection is : main.getSections()){
-						b.appendField(":" + is.desc()[0] + ": " + is.desc()[1] + " Commands", is.desc()[2], true);
+						b.appendField(":" + is.desc()[0] + ": " + is.desc()[1] + " Commands\t", is.desc()[2] + "\t", i++ % 3 != 0);
 					}
 
-					b.withFooterText("Made by Nomble#8128");
+					b.withFooterText("Made by Nomble#8128 | Now on " + e.getClient().getGuilds().size() + " Guilds!");
 
-					ic.sendMessage(b.build());
-				});
+					return ic.sendMessage(b.build());
+				}).get();
 
-				IMessage m = ic.sendMessage("** **");
 				for(ISection is : main.getSections()){
 					RequestBuffer.request(() -> {
 						m.addReaction(is.desc()[3]);

@@ -35,16 +35,16 @@ public class SectionLog implements ISection{
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 			if(c.equals("logbet") && sa.length >= 3){
-				new Thread(() -> {
+				//new Thread(() -> {
 					IChannel ic = e.getMessage().getChannel();
 					try{
-						String s = "-------BEGIN LOG OF " + ic.getName().toUpperCase() + " (" + ic.getLongID() + "): " + sa[1] + " TO " + sa[2] + "-------";
+						String s = "\n-------END " + ic.getName().toUpperCase() + " LOG-------";
 
 						MessageHistory mh = ic.getMessageHistoryIn(Long.valueOf(sa[1]), Long.valueOf(sa[2]), 500000);
 						for(IMessage m : mh){
-							s += "\n" + m.getAuthor().getName() + ": " + m.getContent();
+							s = "\n" + m.getAuthor().getName() + ": " + m.getContent() + s;
 						}
-						s += "-------END " + ic.getName().toUpperCase() + " LOG-------";
+						s += "-------BEGIN LOG OF " + ic.getName().toUpperCase() + " (" + ic.getLongID() + "): " + sa[1] + " TO " + sa[2] + "-------";
 
 						String p = main.upload(ic.getName() + " Log", s);
 
@@ -53,9 +53,11 @@ public class SectionLog implements ISection{
 						});
 					}
 					catch(NumberFormatException nfe){
-						ic.sendMessage("Invalid message ids: must be numbers.");
+						RequestBuffer.request(() -> {
+							ic.sendMessage("Invalid message ids: must be numbers.");
+						});
 					}
-				});
+				//}).start();
 			}
 		}
 	}
@@ -67,7 +69,7 @@ public class SectionLog implements ISection{
 
 	@Override
 	public String[] desc(){
-		return new String[] {"scroll", "Log", "General commands and info.", ":scroll:"};
+		return new String[] {"scroll", "Log", "Document channel histories.", ":scroll:"};
 	}
 
 	@Override
