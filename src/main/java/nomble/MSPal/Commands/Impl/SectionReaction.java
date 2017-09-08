@@ -1,4 +1,4 @@
-package nomble.MSPal.Section.Impl;
+package nomble.MSPal.Commands.Impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import nomble.MSPal.Core.Util;
-import nomble.MSPal.Section.ISection;
+import nomble.MSPal.Commands.ISection;
 
 import org.apache.commons.io.FileUtils;
 

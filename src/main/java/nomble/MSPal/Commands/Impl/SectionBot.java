@@ -1,4 +1,4 @@
-package nomble.MSPal.Section.Impl;
+package nomble.MSPal.Commands.Impl;
 
 import com.vdurmont.emoji.EmojiManager;
 
@@ -7,16 +7,17 @@ import java.util.Random;
 
 import nomble.MSPal.Core.Bot;
 import nomble.MSPal.Core.Util;
-import nomble.MSPal.Section.ISection;
+import nomble.MSPal.Commands.ISection;
 
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.handle.impl.events.guild.channel.message.*;
+import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IEmbed;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IPrivateChannel;
 import sx.blah.discord.handle.obj.Permissions;
-import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.util.*;
 
 public class SectionBot implements ISection{
@@ -48,16 +49,20 @@ public class SectionBot implements ISection{
 
 					if(ic instanceof IPrivateChannel || ic.getModifiedPermissions(e.getClient().getOurUser()).contains(Permissions.ADD_REACTIONS)){
 						b.withDescription("To go to a category, select the corresponding reaction.\n");
+
 						if(!Util.getPrefix(l).equals("")){
 							b.appendDescription("Current command prefix: **" + Util.getPrefix(l) + "**. ");
 						}
 						if(!Util.getSuffix(l).equals("")){
 							b.appendDescription("Current command suffix: **" + Util.getSuffix(l) + "**. ");
 						}
+
 						b.appendDescription("\nCommand format: " + Util.getPrefix(l) + "command" + Util.getSuffix(l) + " [argument 1] [argument 2] [argument 3]...");
+						b.appendDescription("\nTo get message ids, open discord settings, go to appearance, and enable developer mode. " +
+							"You will then be able to copy message ids in the same interface as the options to pin and delete messages.");
 					}
 					else{
-						b.withDescription("Please use this command in a dm, as reaction permissions are disabled on this channel.");
+						b.withDescription("Please use this command in a DM, as reaction permissions are disabled on this channel.");
 					}
 
 					int i = 1;
@@ -72,7 +77,7 @@ public class SectionBot implements ISection{
 
 				for(ISection is : main.getSections()){
 					RequestBuffer.request(() -> {
-						m.addReaction(is.desc()[3]);
+						m.addReaction(ReactionEmoji.of(is.desc()[3]));
 					});
 				}
 			}

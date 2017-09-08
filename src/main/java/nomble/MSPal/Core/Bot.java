@@ -5,8 +5,8 @@ import com.github.kennedyoliveira.pastebin4j.*;
 import java.util.List;
 import java.util.ArrayList;
 
-import nomble.MSPal.Section.ISection;
-import nomble.MSPal.Section.Impl.*;
+import nomble.MSPal.Commands.ISection;
+import nomble.MSPal.Commands.Impl.*;
 
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.*;

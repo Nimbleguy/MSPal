@@ -9,3 +9,6 @@ lib
 lib/**
 res
 reactions/*/*
+reactions/*/
+data
+data/*
