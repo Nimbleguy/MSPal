@@ -3,10 +3,14 @@ package nomble.MSPal.Core;
 import com.github.kennedyoliveira.pastebin4j.*;
 
 import java.util.List;
+import java.util.Scanner;
 import java.util.ArrayList;
 
 import nomble.MSPal.Commands.ISection;
 import nomble.MSPal.Commands.Impl.*;
+import nomble.MSPal.Data.IData;
+import nomble.MSPal.Data.SQL;
+import nomble.MSPal.Data.Impl.*;
 
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.*;
@@ -16,30 +20,67 @@ public class Bot implements IListener<ReadyEvent>{
 	private IDiscordClient bot;
 	private PasteBin paste;
 
-	private String owner;
-
 	private List<ISection> sects;
+	private List<IData> data;
 
-	public Bot(String t, String o, String p){
+	public Bot(String t, String[] sa){
 		bot = new ClientBuilder().withToken(t).build();
 
-		if(p != null){
+		String p = "";
+		
+		if((p = sa[EnumInput.PASTEBIN.ordinal()]) != null){
 			paste = new PasteBin(new AccountCredentials(p));
 		}
 		else{
 			paste = null;
 		}
 
-		owner = o;
-
+		if((p = sa[EnumInput.OWNER.ordinal()]) != null){
+			Util.owner = Long.valueOf(sa[EnumInput.OWNER.ordinal()]);
+		}
+		else{
+			Util.owner = -1;
+		}
+		
+		String c = "";
+		if((c = sa[EnumInput.SQLADDR.ordinal()]) != null){
+			if((p = sa[EnumInput.SQLPREF.ordinal()]) != null){
+				Util.sqlPrefix = p;
+			}
+			else{
+				Util.sqlPrefix = "";
+			}
+			
+			data = new ArrayList<IData>();
+			
+			data.add(new DataLog());
+			data.add(new DataSettings());
+			data.add(new DataConsent());
+			data.add(new DataUser());
+			
+			Util.sql = new SQL(c, sa[EnumInput.SQLUSER.ordinal()], sa[EnumInput.SQLPASS.ordinal()]);
+		}
+		else{
+			Util.sql = null;
+		}
+		
 		sects = new ArrayList<ISection>();
 	}
 
 	public void init(){
-		sects.add(new SectionReaction(bot));
-		sects.add(new SectionBot(bot, this));
+		if(Util.sql != null){
+			System.out.println(	"Please enter the password to encrypt the database with.\n" +
+								"You cannot change this without deleting the database.");
+			if(!Util.sql.password(new Scanner(System.in).nextLine())){
+				System.err.println("Invalid password. Delete the database to reset it, or try entering it again.");
+				System.exit(-1);
+			}
+		}
+
+		sects.add(new SectionReaction());
+		sects.add(new SectionBot(this));
 		if(paste != null){
-			sects.add(new SectionLog(bot, this));
+			sects.add(new SectionLog(this));
 		}
 
 		bot.getDispatcher().registerListener(this);
@@ -53,6 +94,17 @@ public class Bot implements IListener<ReadyEvent>{
 
 	public List<ISection> getSections(){
 		return sects;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getData(Class<? extends T> c){
+		for(IData d : data){
+			if(d != null && c.isInstance(d)){
+				return (T)d;
+			}
+		}
+		
+		return null;
 	}
 
 	public boolean canUpload(){

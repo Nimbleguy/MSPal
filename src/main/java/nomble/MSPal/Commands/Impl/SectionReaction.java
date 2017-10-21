@@ -9,25 +9,22 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import nomble.MSPal.Core.Util;
+import nomble.MSPal.Commands.EnumSection;
 import nomble.MSPal.Commands.ISection;
 
 import org.apache.commons.io.FileUtils;
 
-import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.util.*;
 
 public class SectionReaction implements ISection{
-	private IDiscordClient bot;
 
 	private HashMap<List<String>, File> imgs;
 	private HashMap<List<String>, String> desc;
 
-	public SectionReaction(IDiscordClient b){
+	public SectionReaction(){
 		load();
-
-		bot = b;
 	}
 
 	@EventSubscriber
@@ -73,7 +70,7 @@ public class SectionReaction implements ISection{
 
 	@Override
 	public String[] desc(){
-		return new String[] {"slight_smile", "Reaction", "For all your reactions.", ":slightly_smiling:"};
+		return new String[] {"slight_smile", EnumSection.REACTION.toString(), "For all your reactions.", ":slightly_smiling:", ""};
 	}
 
 	@Override

@@ -52,7 +52,7 @@ $(JAR) : $(ARTIFACTS) $(CFILE) $(MANIFEST)
 	truncate -s-1 $(BINDIR)/manifest
 	printf "Class-Path: $(subst $(SPACE),$(SPACE)\n$(SPACE),$(wildcard $(LIBDIR)/*.jar))$(SPACE)\n$(SPACE)$(subst $(SPACE),$(SPACE)\n$(SPACE),$(wildcard $(JARDIR)/*.jar))$(SPACE)\n$(SPACE).$(SPACE)\n" >> $(BINDIR)/manifest
 	rsync -a $(RESDIR)/* $(BINDIR)
-	jar cmf $(BINDIR)/manifest $(JAR) $(patsubst $(BINDIR)/%,-C $(BINDIR) %,$(shell find $(BINDIR) -type f -not -name "manifest"))
+	jar cmf $(BINDIR)/manifest $(JAR) -C $(BINDIR) .
 
 $(BINDIR)/%.class : $(SRCDIR)/%.java $(SRCDIR) $(BINDIR) $(ARTIFACTS)
 	javac -d $(BINDIR) -cp ".:$(LIBDIR)/*:$(JARDIR)/*:$(BINDIR):$(SRCDIR)" $(CARG) $<

@@ -1,23 +1,60 @@
 package nomble.MSPal;
 
+import java.security.Security;
+
 import nomble.MSPal.Core.Bot;
+import nomble.MSPal.Core.EnumInput;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class MSPal{
 	public static Bot pal;
 
 	public static void main(String[] args){
-		if(args.length < 2 || args.length > 3){
-			System.err.println("Invalid amount of arguments. Must be either 2 or 3.");
-			System.exit(-1);
+		EnumInput n = null;
+		String[] sa = new String[EnumInput.values().length];
+		String t = null;
+		for(String s : args){
+			if(n != null){
+				sa[n.ordinal()] = s;
+				n = null;
+			}
+			else if(s.startsWith("-")){
+				if(s.equals("-h")){
+					System.out.println(	"------- MSPal -------\n" +
+										"java -jar pal.jar [OPTIONS] (TOKEN)\n" +
+										" -------------------\n" +
+										"-o:\n" +
+										"   Bot owner UID." +
+										"-p:\n" +
+										"   Pastebin API ID." +
+										"-a:\n" +
+										"   SQL database IP/Name." +
+										"-u:\n" +
+										"   SQL database username." +
+										"-P:\n" +
+										"   SQL database password." +
+										"-F:\n" +
+										"   SQL database table prefix.");
+					System.exit(0);
+				}
+				
+				if(s.length() != 2 || (n = EnumInput.getInput(s.toCharArray()[1])) == null){
+					System.out.println("Invalid input: " + s);
+					System.exit(-1);
+				}
+			}
+			else{
+				t = s;
+			}
+		}
+		if(t == null){
+			System.out.println("No token provided!");
 		}
 
-		if(args.length == 3){
-			pal = new Bot(args[0], args[1], args[2]);
-		}
-		else{
-			pal = new Bot(args[0], args[1], null);
-		}
-
+		Security.addProvider(new BouncyCastleProvider());
+		
+		pal = new Bot(t, sa);
 		pal.init();
 	}
 }
