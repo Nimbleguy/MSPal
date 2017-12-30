@@ -57,6 +57,7 @@ public class Bot implements IListener<ReadyEvent>{
 			data.add(new DataSettings());
 			data.add(new DataConsent());
 			data.add(new DataUser());
+			data.add(new DataGuild());
 			
 			Util.sql = new SQL(c, sa[EnumInput.SQLUSER.ordinal()], sa[EnumInput.SQLPASS.ordinal()]);
 		}
@@ -68,6 +69,8 @@ public class Bot implements IListener<ReadyEvent>{
 	}
 
 	public void init(){
+		Util.bot = this;
+		
 		if(Util.sql != null){
 			System.out.println(	"Please enter the password to encrypt the database with.\n" +
 								"You cannot change this without deleting the database.");

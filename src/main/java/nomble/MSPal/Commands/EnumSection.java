@@ -4,7 +4,8 @@ public enum EnumSection{
 	GENERAL("General"),
 	BOT("Bot"),
 	REACTION("Reactions"),
-	LOG("Logging");
+	LOG("Logging"),
+	FUN("Fun");
 	
 	private String name;
 	

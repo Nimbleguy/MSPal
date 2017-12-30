@@ -1,7 +1,7 @@
 JAR := pal.jar# Your jar file, with the .jar.
 ARGS := $(shell cat auth.txt)# Arguments for your jar file when running.
 CARG := -Xlint:all,-path# Arguments for javac. When debugging, use -g for local var debug ability.
-PROP := # System properties when launching the jar.
+PROP := -Xmx768M# System properties when launching the jar.
 SRCDIR := src/main/java# Directory where your .java files are. No trailing /.
 BINDIR := bin/main/java# Directory where your .class files should be. No trailing /.
 LIBDIR := lib# Where you want your libraries. No trailing /.

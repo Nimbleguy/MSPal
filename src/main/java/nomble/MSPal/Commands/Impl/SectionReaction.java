@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
+import sx.blah.discord.handle.obj.IPrivateChannel;
 import sx.blah.discord.util.*;
 
 public class SectionReaction implements ISection{
@@ -29,8 +30,12 @@ public class SectionReaction implements ISection{
 
 	@EventSubscriber
 	public void onMessage(MessageReceivedEvent e){
-		List<String[]> sl = Util.getCommand(e.getMessage().getContent());
-		long l = e.getMessage().getGuild().getLongID();
+		long l = -1;
+		if(!(e.getChannel() instanceof IPrivateChannel)){
+			l = e.getMessage().getGuild().getLongID();
+		}
+
+		List<String[]> sl = Util.getCommand(e.getMessage().getContent(), l);
 
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");

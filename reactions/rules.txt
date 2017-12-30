@@ -1,0 +1,1 @@
+Follow or perish, unless f(-x) == -f(x).

@@ -1,5 +1,8 @@
 package nomble.MSPal.Core;
 
+import nomble.MSPal.Data.SQL;
+import nomble.MSPal.Data.Impl.DataGuild;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -18,20 +21,24 @@ import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import nomble.MSPal.Data.SQL;
 
 public class Util{
 	private static final Pattern cmd = Pattern.compile(":.+?:( .+)*");
 	protected static long owner;
 	protected static String sqlPrefix;
 	protected static SQL sql;
+	protected static Bot bot;
 
-	public static List<String[]> getCommand(String s){
+	public static List<String[]> getCommand(String s, long g){
 		Matcher m = cmd.matcher(s);
 		List<String[]> l = new ArrayList<String[]>();
 
+		String sb = bot.getData(DataGuild.class).getCommandBans(g);
 		while(m.find()){
-			l.add(m.group().split(" "));
+			String[] sa = m.group().split(" ");
+			if(sb == null || !sb.contains(sa[0].replaceAll(":", "") + "|")){
+				l.add(sa);
+			}
 		}
 
 		return l;

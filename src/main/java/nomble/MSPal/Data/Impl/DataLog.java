@@ -31,37 +31,54 @@ public class DataLog implements IData{
 		table = Util.getSQLPrefix() + "log";
 	}
 	
-	public void addNote(long l, IMessage m){
-		try(PreparedStatement psi = Util.getSQL().get("INSERT INTO " + table + " (hmac, time, timei, timeh, msg, msgi, msgh, lind, lindi, lindh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+	public boolean addNote(long l, IMessage m){
+		String u = String.valueOf(m.getTimestamp().toEpochSecond(ZoneOffset.UTC));
+		String d = String.valueOf(m.getLongID());
+		int fi = getFreeIndex(l);
+		String i = String.valueOf(fi);
+		
+		if(fi >= 256){
+			return false;
+		}
+		
+		try(PreparedStatement psi = Util.getSQL().get("INSERT INTO " + table + " (hmac, usr, usri, usrh, time, timei, timeh, msg, msgi, msgh, mid, midi, midh, lind, lindi, lindh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
 			String s = String.valueOf(l);
 			
+			byte[] ui = Util.getIV(16);
 			byte[] ti = Util.getIV(16);
 			byte[] mi = Util.getIV(16);
+			byte[] ii = Util.getIV(16);
 			byte[] li = Util.getIV(16);
-			
-			String u = String.valueOf(m.getTimestamp().toEpochSecond(ZoneOffset.UTC));
-			String i = String.valueOf(getFreeIndex(l));
 			
 			psi.setBytes(1, Util.mac(s.getBytes("UTF-8")));
 			
-			psi.setBytes(2, Util.cipher(u.getBytes("UTF-8"), ti, Cipher.ENCRYPT_MODE));
-			psi.setBytes(3, ti);
-			psi.setBytes(4, Util.mac(u.getBytes("UTF-8")));
+			psi.setBytes(2, Util.cipher(m.getAuthor().getName().getBytes("UTF-8"), ui, Cipher.ENCRYPT_MODE));
+			psi.setBytes(3, ui);
+			psi.setBytes(4, Util.mac(m.getAuthor().getName().getBytes("UTF-8")));
+			
+			psi.setBytes(5, Util.cipher(u.getBytes("UTF-8"), ti, Cipher.ENCRYPT_MODE));
+			psi.setBytes(6, ti);
+			psi.setBytes(7, Util.mac(u.getBytes("UTF-8")));
 			
 			// Split because all note commands have the message at the 3+ index.
-			psi.setBytes(5, Util.cipher(m.getContent().split(" ", 3)[2].getBytes("UTF-8"), ti, Cipher.ENCRYPT_MODE));
-			psi.setBytes(6, mi);
-			psi.setBytes(7, Util.mac(m.getContent().split(" ", 3)[2].getBytes("UTF-8")));
+			psi.setBytes(8, Util.cipher(m.getContent().split(" ", 3)[2].getBytes("UTF-8"), mi, Cipher.ENCRYPT_MODE));
+			psi.setBytes(9, mi);
+			psi.setBytes(10, Util.mac(m.getContent().split(" ", 3)[2].getBytes("UTF-8")));
 			
-			psi.setBytes(8, Util.cipher(i.getBytes("UTF-8"), ti, Cipher.ENCRYPT_MODE));
-			psi.setBytes(9, li);
-			psi.setBytes(10, Util.mac(i.getBytes("UTF-8")));
+			psi.setBytes(11, Util.cipher(d.getBytes("UTF-8"), ii, Cipher.ENCRYPT_MODE));
+			psi.setBytes(12, ii);
+			psi.setBytes(13, Util.mac(d.getBytes("UTF-8")));
+			
+			psi.setBytes(14, Util.cipher(i.getBytes("UTF-8"), li, Cipher.ENCRYPT_MODE));
+			psi.setBytes(15, li);
+			psi.setBytes(16, Util.mac(i.getBytes("UTF-8")));
 			
 			psi.executeUpdate();
 		}
 		catch(SQLException | UnsupportedEncodingException e){
 			e.printStackTrace();
 		}
+		return true;
 	}
 
 	public String[] getLog(long l, short i){
