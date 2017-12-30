@@ -142,7 +142,7 @@ public class SectionFun implements ISection{
 				s = " This moat goes to hell and back.";
 				break;
 			case 0:
-				s = " ALERT: The border is unguarded!";
+				s = " **ALERT:** The border is unguarded!";
 				break;
 			case 42:
 				s = " Nobody is getting over this wall.";
@@ -157,7 +157,7 @@ public class SectionFun implements ISection{
 				s = "";
 				break;
 		}
-		return "The " + (w < 0 ? "moat" : "wall") + " is now " + Math.abs(w) + " feet " + (w < 0 ? "deep" : "tall") + "." + s;
+		return "The " + (w < 0 ? "moat" : "wall") + " is now " + Math.abs(w) + " " + (Math.abs(w) == 1 ? "foot" : "feet") + " " + (w < 0 ? "deep" : "tall") + "." + s;
 	}
 	
 	@Override
