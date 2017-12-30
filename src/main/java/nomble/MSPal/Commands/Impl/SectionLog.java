@@ -16,6 +16,7 @@ import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IPrivateChannel;
+import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.util.*;
 

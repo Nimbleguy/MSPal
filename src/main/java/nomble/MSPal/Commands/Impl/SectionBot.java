@@ -65,7 +65,9 @@ public class SectionBot implements ISection{
 				DataConsent du = main.getData(DataConsent.class);
 				boolean b = du.getConsent(e.getAuthor().getLongID());
 				du.setConsent(e.getAuthor().getLongID(), !b);
-				ic.sendMessage("You have opted " + (b ? "out of" : "into") + " user data storage.");
+				RequestBuffer.request(() -> {
+					ic.sendMessage("You have opted " + (b ? "out of" : "into") + " user data storage.");
+				});
 			}
 			else if(c.equals("cmdban") && sa.length > 1 && (l == -1 || e.getAuthor().getPermissionsForGuild(e.getMessage().getGuild()).contains(Permissions.MANAGE_MESSAGES)) && !sa[1].contains("|")){
 				DataGuild dg = main.getData(DataGuild.class);
@@ -75,9 +77,10 @@ public class SectionBot implements ISection{
 					b = false;
 				}
 				dg.setCommandBan(l, sa[1], b);
+				final boolean fb = b;
 				RequestBuffer.request(() -> {
-					ic.sendMessage("You have " + (b ? "banned" : "unbanned") + " " + sa[1] + ".");
-				}
+					ic.sendMessage("You have " + (fb ? "banned" : "unbanned") + " " + sa[1] + ".");
+				});
 			}
 			else if(c.equals("reload") && al == Util.getOwner()){ // only for the bot owner
 				for(ISection is : main.getSections()){
@@ -88,7 +91,7 @@ public class SectionBot implements ISection{
 				IChannel ics = e.getClient().getChannelByID(Long.valueOf(sa[1]));
 				RequestBuffer.request(() -> {
 					ics.sendMessage(e.getMessage().getContent().split(" ", 3)[2]);
-				}
+				});
 			}
 		}
 	}

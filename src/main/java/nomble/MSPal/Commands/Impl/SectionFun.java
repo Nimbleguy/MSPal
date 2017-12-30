@@ -1,25 +1,16 @@
 package nomble.MSPal.Commands.Impl;
 
-import com.vdurmont.emoji.EmojiManager;
-
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import nomble.MSPal.Core.Bot;
 import nomble.MSPal.Core.Util;
-import nomble.MSPal.Data.Impl.DataConsent;
-import nomble.MSPal.Data.Impl.DataGuild;
+import nomble.MSPal.Data.Impl.DataSettings;
 import nomble.MSPal.Commands.EnumSection;
 import nomble.MSPal.Commands.ISection;
 
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
-import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.*;
-import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IEmbed;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IPrivateChannel;
 import sx.blah.discord.handle.obj.IUser;
@@ -29,7 +20,7 @@ import sx.blah.discord.util.*;
 public class SectionFun implements ISection{
 	private Bot main;
 
-	public SectionBot(Bot m){
+	public SectionFun(Bot m){
 		load();
 		main = m;
 	}
@@ -48,14 +39,16 @@ public class SectionFun implements ISection{
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 			if(c.equals("build")){
+				String s = border(1);
 				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendMessage(border(1));
-				}
+					e.getMessage().getChannel().sendMessage(s);
+				});
 			}
 			else if(c.equals("destroy")){
+				String s = border(-1);
 				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendMessage(border(-1));
-				}
+					e.getMessage().getChannel().sendMessage(s);
+				});
 			}
 			else if(c.equals("pitchfork") && sa.length > 1){
 				String s;
@@ -92,6 +85,7 @@ public class SectionFun implements ISection{
 						break;
 					case "buckfork shotgun":
 						s = "▄︻̷̿┻̿═━一E";
+						break;
 					case "automatic forkpitcher":
 						s = "︻̷┻̿●═E";
 						break;
@@ -101,10 +95,12 @@ public class SectionFun implements ISection{
 					case "uber":
 						s = "                 /E<>---\n<⊙============<{|⊙E<>---\n                 \\E<>---";
 						break;
+					default:
+						s = "";
 				}
 				RequestBuffer.request(() -> {
 					e.getMessage().getChannel().sendMessage("```" + s + "```");
-				}
+				});
 			}
 			else if(c.equals("pitchfork")){
 				RequestBuffer.request(() -> {
@@ -114,29 +110,31 @@ public class SectionFun implements ISection{
 										"WE EVEN HAVE DISCOUNTED CLEARENCE FORKS!\n" +
 										"Forked Price, 33% Off, 66% Off, AND Manufacturer's Defect!\n\n" +
 										"NEW IN STOCK: DIRECTLY FROM LIECHTENSTEIN, EUROPEAN MODELS!\n" +
-										"The Euro, The Pound, AND The Lira!```");
-				}
-				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendMessage("```TRY OUT OUR SPECIAL STOCK, FRESHLY-IMPORTED FROM FREDONIA!\n" +
+										"The Euro, The Pound, AND The Lira!\n\n" +
+										"TRY OUT OUR SPECIAL STOCK, FRESHLY-IMPORTED FROM FREDONIA!\n" +
 										"FIRST UP, THE RUGGEDLY RELIABLE, FEATURING SEVEN-ROUND LEVER-ACTION:\n" +
 										"Buckfork Shotgun!\n\n" +
 										"LEGAL ONLY IN THE UNITED STATES, BOASTING A MODIFIED MINITURE MAXIM GUN:\n" +
 										"Automatic Forkpitcher!\n\n" +
 										"FOUND IN THE SHADIEST AFTERMARKETS, THE GERMAN-ENGINEERED:\n" +
-										"Seventh Division!\n\n```" +
+										"Seventh Division!\n\n" +
 										"TOTALLY NOT DISCOVERED IN THE NIGHTMARE REALM, THE BIGGEST AND BEST:\n" +
-										"Uber!");
-				}
+										"Uber!```");
+				});
 			}
 		}
 	}
 	
 	private String border(long mod){
-		DataSettings ds = bot.getData(DataSettings.class);
-		long w = Long.valueOf(ds.getSetting("wall")) + mod;
-		ds.setSetting("wall", (String)w);
+		DataSettings ds = main.getData(DataSettings.class);
+		long w = mod;
+		try{
+			w = Long.valueOf(ds.getSetting("wall")) + mod;
+		}
+		catch(NumberFormatException e){}
+		ds.setSetting("wall", String.valueOf(w));
 		String s;
-		switch(w){
+		switch((int)w){ // java uwot why does this have to be an int you nonce
 			case -39600:
 				s = " Take that, Russia!";
 				break;
@@ -144,7 +142,7 @@ public class SectionFun implements ISection{
 				s = " This moat goes to hell and back.";
 				break;
 			case 0:
-				s = " The border is unguarded!";
+				s = " ALERT: The border is unguarded!";
 				break;
 			case 42:
 				s = " Nobody is getting over this wall.";
@@ -159,7 +157,7 @@ public class SectionFun implements ISection{
 				s = "";
 				break;
 		}
-		return "The " + (w < 0 ? "moat" : "wall") + " is now " + w + " feet " + (w < 0 ? "moat" : "wall") + "." + s;
+		return "The " + (w < 0 ? "moat" : "wall") + " is now " + Math.abs(w) + " feet " + (w < 0 ? "deep" : "tall") + "." + s;
 	}
 	
 	@Override

@@ -85,6 +85,7 @@ public class Bot implements IListener<ReadyEvent>{
 		if(paste != null){
 			sects.add(new SectionLog(this));
 		}
+		sects.add(new SectionFun(this));
 
 		bot.getDispatcher().registerListener(this);
 		for(ISection s : sects){
