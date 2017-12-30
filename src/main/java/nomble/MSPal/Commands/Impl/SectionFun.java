@@ -64,7 +64,7 @@ public class SectionFun implements ISection{
 						s = "---E";
 						break;
 					case "left handed":
-						s = "";
+						s = "Ǝ---";
 						break;
 					case "fancy":
 						s = "---{";
@@ -82,21 +82,24 @@ public class SectionFun implements ISection{
 						s = "---e";
 						break;
 					case "the euro":
-						s = "";
+						s = "---€";
 						break;
 					case "the pound":
-						s = "";
+						s = "---£";
 						break;
 					case "the lira":
-						s = "";
+						s = "---₤";
 						break;
 					case "buckfork shotgun":
-						s = "";
+						s = "▄︻̷̿┻̿═━一E";
 					case "automatic forkpitcher":
-						s = "";
+						s = "︻̷┻̿●═E";
 						break;
 					case "seventh division":
-						s = "";
+						s = "░░░░███████ ]--------------====-----E\n▂▄▅█M█S█P█A██▅▄▃▂\nIl███████████████████████\n◥⊙▲⊙▲⊙▲⊙▲⊙▲⊙▲⊙▲⊙◤";
+						break;
+					case "uber":
+						s = "                 /E<>---\n<⊙============<{|⊙E<>---\n                 \\E<>---";
 						break;
 				}
 				RequestBuffer.request(() -> {
@@ -120,7 +123,9 @@ public class SectionFun implements ISection{
 										"LEGAL ONLY IN THE UNITED STATES, BOASTING A MODIFIED MINITURE MAXIM GUN:\n" +
 										"Automatic Forkpitcher!\n\n" +
 										"FOUND IN THE SHADIEST AFTERMARKETS, THE GERMAN-ENGINEERED:\n" +
-										"Seventh Division!\n\n```");
+										"Seventh Division!\n\n```" +
+										"TOTALLY NOT DISCOVERED IN THE NIGHTMARE REALM, THE BIGGEST AND BEST:\n" +
+										"Uber!");
 				}
 			}
 		}
