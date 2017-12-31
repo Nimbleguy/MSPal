@@ -37,7 +37,7 @@ public class SectionReaction implements ISection{
 	private HashMap<List<String>, File> imgs;
 	private HashMap<List<String>, String> desc;
 
-	private Pattern repeat = Pattern.compile("^(.+)+?\\1+$");
+	private Pattern repeat = Pattern.compile("^(.+?)\\1+$");
 
 	public SectionReaction(){
 		load();
@@ -74,7 +74,7 @@ public class SectionReaction implements ISection{
 					BufferedImage bf = ImageIO.read(tf);
 
 					int s = (bf.getWidth(null) * 9) / 43;
-					int t = StringUtils.countMatches(r, p);
+					int t = r.length() / p.length();
 					BufferedImage nf = new BufferedImage(bf.getWidth(null) + (s * t), bf.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 					Graphics g = nf.getGraphics();
 					for(int i = 0; i < t; i++){
