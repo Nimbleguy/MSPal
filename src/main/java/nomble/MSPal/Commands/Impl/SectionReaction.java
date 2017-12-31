@@ -77,7 +77,7 @@ public class SectionReaction implements ISection{
 						s = (s * 9) / 43;
 					}
 					int t = r.length() / p.length();
-					BufferedImage nf = new BufferedImage(bf.getWidth(null) + (s * t), bf.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+					BufferedImage nf = new BufferedImage(bf.getWidth(null) + (s * (t - 1)), bf.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 					Graphics g = nf.getGraphics();
 					for(int i = 0; i < t; i++){
 						g.drawImage(bf, i * s, 0, null);
