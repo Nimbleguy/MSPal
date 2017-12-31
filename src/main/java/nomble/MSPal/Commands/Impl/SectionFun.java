@@ -1,6 +1,7 @@
 package nomble.MSPal.Commands.Impl;
 
 import java.util.List;
+import java.util.Random;
 
 import nomble.MSPal.Core.Bot;
 import nomble.MSPal.Core.Util;
@@ -35,6 +36,7 @@ public class SectionFun implements ISection{
 		long al = e.getAuthor().getLongID();
 		List<String[]> sl = Util.getCommand(e.getMessage().getContent(), l);
 		IChannel ic = e.getMessage().getChannel();
+		Random r = new Random();
 
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
@@ -98,9 +100,11 @@ public class SectionFun implements ISection{
 					default:
 						s = "";
 				}
-				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendMessage("```" + s + "```");
-				});
+				if(!s.equals("")){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage("```" + s + "```");
+					});
+				}
 			}
 			else if(c.equals("pitchfork")){
 				RequestBuffer.request(() -> {
@@ -121,6 +125,50 @@ public class SectionFun implements ISection{
 										"TOTALLY NOT DISCOVERED IN THE NIGHTMARE REALM, THE BIGGEST AND BEST:\n" +
 										"Uber!```");
 				});
+			}
+			else if(c.equals("murder")){
+				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " mysteriously disappeared!");
+					});
+				}
+				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID())){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " did not reach the Nuclear Throne!");
+					});
+				}
+				else if(r.nextInt(8) == 0){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " tripped and accidentally commited seppuku!");
+					});
+				}
+				else{
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " murdered " + sa[1] + "!");
+					});
+				}
+			}
+			else if(c.equals("shoot")){
+				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " held the gun the wrong way around!");
+					});
+				}
+				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID())){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " went against BROFORCE!");
+					});
+				}
+				else if(r.nextInt(8) == 0){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " tripped and accidentally commited sudoku!");
+					});
+				}
+				else{
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " shot " + sa[1] + "!");
+					});
+				}
 			}
 		}
 	}
@@ -157,7 +205,7 @@ public class SectionFun implements ISection{
 				s = "";
 				break;
 		}
-		return "The " + (w < 0 ? "moat" : "wall") + " is now " + Math.abs(w) + " " + (Math.abs(w) == 1 ? "foot" : "feet") + " " + (w < 0 ? "deep" : "tall") + "." + s;
+		return "The " + (w < 0 ? "moat" : "wall") + " just got 1 foot " + (Math.abs(w) == 1 ? "foot" : "feet") + "! It is now " + Math.abs(w) + " " + (Math.abs(w) == 1 ? "foot" : "feet") + " " + (w < 0 ? "deep" : "tall") + "." + s;
 	}
 	
 	@Override
