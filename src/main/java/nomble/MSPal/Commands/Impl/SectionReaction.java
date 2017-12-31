@@ -25,7 +25,6 @@ import nomble.MSPal.Commands.ISection;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
@@ -114,9 +113,6 @@ public class SectionReaction implements ISection{
 						};
 						LookupOp lo = new LookupOp(lt, new RenderingHints(null));
 						bf = lo.filter(bf, null);
-					}
-
-					if(!p.equals(r)){
 					}
 
 					tf = new File(System.getProperty("java.io.tmpdir") + File.separator + String.valueOf(e.getMessage().getLongID()) + ".png");
