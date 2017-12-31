@@ -1,5 +1,12 @@
 package nomble.MSPal.Commands.Impl;
 
+import java.awt.Graphics;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.LookupOp;
+import java.awt.image.LookupTable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,6 +31,8 @@ public class SectionReaction implements ISection{
 	private HashMap<List<String>, File> imgs;
 	private HashMap<List<String>, String> desc;
 
+	private Pattern repeat = Pattern.compile("^(.+)+?\\1+$");
+
 	public SectionReaction(){
 		load();
 	}
@@ -39,13 +48,78 @@ public class SectionReaction implements ISection{
 
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
-			List<String> ls = Arrays.asList(c);
+
+			String r = c.replaceAll("[(top)(pot)(low)(wol)]", "");
+			String p = r;
+			Matcher m = repeat.matcher(r);
+			if(m.find()){
+				p = m.group(1);
+			}
+
+			List<String> ls = Arrays.asList(r);
 			if(imgs.get(ls) == null){
-				ls = Arrays.asList(c, Long.toString(l));
+				ls = Arrays.asList(r, Long.toString(l));
 			}
 
 			final List<String> lsf = ls;
-			if(imgs.get(lsf) != null){
+
+			File tf = imgs.get(lsf);
+			boolean c = false;
+			if(tf != null && !(c.equals(r) && p.equals(r)){
+				BufferedImage bf = ImageIO.read(tf);
+
+				if(c.startsWith("low") || c.startsWith("wol")){
+					AffineTransform at = AffineTransform.getScaleInstance(1, -1);
+					at.translate(0, -bf.getHeight(null));
+					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+					bf = ato.filter(bf, null);
+				}
+				if(c.endsWith("top") || c.endsWith("pot")){
+					AffineTransform at = AffineTransform.getScaleInstance(-1, 1);
+					at.translate(-bf.getWidth(null), 0);
+					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+					bf = ato.filter(bf, null);
+				}
+				else if(c.endsWith("low") || c.endsWith("wol")){
+					AffineTransform at = AffineTransform.getScaleInstance(-1, -1);
+					at.translate(-bf.getWidth(null), -bf.getHeight(null));
+					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+					bf = ato.filter(bf, null);
+				}
+
+				if(c.contains("pot") ^ c.contains("wol")){
+					LookupTable lt = new LookupTable(0, 4){
+						@Override
+						public int[] lookupPixel(int[] s, int[] d){
+							d[0] = 255 - s[0];
+							d[1] = 255 - s[1];
+							d[2] = 255 - s[2];
+							return d;
+						}
+					}
+					LookupOp lo = new LookupOp(lt, new RenderingHints(null));
+					bf = lo.filter(bf, null);
+				}
+
+				if(!p.equals(r)){
+					int s = (bf.getWidth(null) * 9) / 43
+					int t = StringUtils.countMatches(r, p);
+					BufferedImage nf = new BufferedImage(bf.getWidth(null) + (s * t), bf.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+					Graphics g = nf.getGraphics();
+					for(int i = 0; i < t; i++){
+						g.drawImage(bf, i * s, 0, null);
+					}
+					g.dispose();
+					bf = nf;
+				}
+
+				tf = new File(System.getProperty("java.io.tmpdir") + File.pathSeperator + String.valueOf(e.getMessage().getLongID()) + ".png");
+				ImageIO.write(bf, "png", tf);
+				c = true;
+			}
+
+			final File f = tf;
+			if(f != null){
 				RequestBuffer.request(() -> {
 					try{
 						e.getMessage().getChannel().sendFile(imgs.get(lsf));
@@ -54,6 +128,9 @@ public class SectionReaction implements ISection{
 						fe.printStackTrace();
 					}
 				});
+			}
+			if(c){
+				f.delete();
 			}
 		}
 	}
@@ -75,7 +152,7 @@ public class SectionReaction implements ISection{
 
 	@Override
 	public String[] desc(){
-		return new String[] {"slight_smile", EnumSection.REACTION.toString(), "For all your reactions.", ":slightly_smiling:", ""};
+		return new String[] {"slight_smile", EnumSection.REACTION.toString(), "For all your reactions. Put multiple of the same reactions within the prefix/suffix to get many. Prefix and suffix the reaction name with top, pot, low, and wol for Fun Things(tm).", ":slightly_smiling:", ""};
 	}
 
 	@Override
