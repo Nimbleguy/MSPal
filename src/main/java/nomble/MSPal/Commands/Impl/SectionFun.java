@@ -126,13 +126,13 @@ public class SectionFun implements ISection{
 										"Uber!```");
 				});
 			}
-			else if(c.equals("murder")){
-				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()){
+			else if(c.equals("murder") && sa.length > 2){
+				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()))){
 					RequestBuffer.request(() -> {
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " mysteriously disappeared!");
 					});
 				}
-				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID())){
+				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID()))){
 					RequestBuffer.request(() -> {
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " did not reach the Nuclear Throne!");
 					});
@@ -148,13 +148,13 @@ public class SectionFun implements ISection{
 					});
 				}
 			}
-			else if(c.equals("shoot")){
-				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()){
+			else if(c.equals("shoot") && sa.length > 2){
+				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()))){
 					RequestBuffer.request(() -> {
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " held the gun the wrong way around!");
 					});
 				}
-				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID())){
+				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID()))){
 					RequestBuffer.request(() -> {
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " went against BROFORCE!");
 					});
@@ -173,11 +173,11 @@ public class SectionFun implements ISection{
 		}
 	}
 	
-	private String border(long mod){
+	private String border(long m){
 		DataSettings ds = main.getData(DataSettings.class);
-		long w = mod;
+		long w = m;
 		try{
-			w = Long.valueOf(ds.getSetting("wall")) + mod;
+			w = Long.valueOf(ds.getSetting("wall")) + m;
 		}
 		catch(NumberFormatException e){}
 		ds.setSetting("wall", String.valueOf(w));
@@ -205,7 +205,7 @@ public class SectionFun implements ISection{
 				s = "";
 				break;
 		}
-		return "The " + (w < 0 ? "moat" : "wall") + " just got 1 foot " + (Math.abs(w) == 1 ? "foot" : "feet") + "! It is now " + Math.abs(w) + " " + (Math.abs(w) == 1 ? "foot" : "feet") + " " + (w < 0 ? "deep" : "tall") + "." + s;
+		return "The " + (w < 0 ? "moat" : "wall") + " just got 1 foot " + (m < 0 ? (w < 0 ? "deeper" : "shallower") : (w < 0 ? "shorter" : "taller")) + "! It is now " + Math.abs(w) + " " + (Math.abs(w) == 1 ? "foot" : "feet") + " " + (w < 0 ? "deep" : "tall") + "." + s;
 	}
 	
 	@Override

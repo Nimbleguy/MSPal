@@ -14,12 +14,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+import javax.imageio.ImageIO;
 
 import nomble.MSPal.Core.Util;
 import nomble.MSPal.Commands.EnumSection;
 import nomble.MSPal.Commands.ISection;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
@@ -49,60 +55,25 @@ public class SectionReaction implements ISection{
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 
-			String r = c.replaceAll("[(top)(pot)(low)(wol)]", "");
+			String r = c.replaceAll("^top", "").replaceAll("^low", "").replaceAll("^pot", "").replaceAll("^wol", "").replaceAll("top$", "").replaceAll("low$", "").replaceAll("pot$", "").replaceAll("wol$", "");
 			String p = r;
 			Matcher m = repeat.matcher(r);
 			if(m.find()){
 				p = m.group(1);
 			}
 
-			List<String> ls = Arrays.asList(r);
+			List<String> ls = Arrays.asList(p);
 			if(imgs.get(ls) == null){
-				ls = Arrays.asList(r, Long.toString(l));
+				ls = Arrays.asList(p, Long.toString(l));
 			}
 
-			final List<String> lsf = ls;
+			File tf = imgs.get(ls);
+			boolean ch = false;
+			if(tf != null && FilenameUtils.getExtension(tf.getName()).equals("png") && !(c.equals(r) && p.equals(r))){
+				try{
+					BufferedImage bf = ImageIO.read(tf);
 
-			File tf = imgs.get(lsf);
-			boolean c = false;
-			if(tf != null && !(c.equals(r) && p.equals(r)){
-				BufferedImage bf = ImageIO.read(tf);
-
-				if(c.startsWith("low") || c.startsWith("wol")){
-					AffineTransform at = AffineTransform.getScaleInstance(1, -1);
-					at.translate(0, -bf.getHeight(null));
-					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					bf = ato.filter(bf, null);
-				}
-				if(c.endsWith("top") || c.endsWith("pot")){
-					AffineTransform at = AffineTransform.getScaleInstance(-1, 1);
-					at.translate(-bf.getWidth(null), 0);
-					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					bf = ato.filter(bf, null);
-				}
-				else if(c.endsWith("low") || c.endsWith("wol")){
-					AffineTransform at = AffineTransform.getScaleInstance(-1, -1);
-					at.translate(-bf.getWidth(null), -bf.getHeight(null));
-					AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-					bf = ato.filter(bf, null);
-				}
-
-				if(c.contains("pot") ^ c.contains("wol")){
-					LookupTable lt = new LookupTable(0, 4){
-						@Override
-						public int[] lookupPixel(int[] s, int[] d){
-							d[0] = 255 - s[0];
-							d[1] = 255 - s[1];
-							d[2] = 255 - s[2];
-							return d;
-						}
-					}
-					LookupOp lo = new LookupOp(lt, new RenderingHints(null));
-					bf = lo.filter(bf, null);
-				}
-
-				if(!p.equals(r)){
-					int s = (bf.getWidth(null) * 9) / 43
+					int s = (bf.getWidth(null) * 9) / 43;
 					int t = StringUtils.countMatches(r, p);
 					BufferedImage nf = new BufferedImage(bf.getWidth(null) + (s * t), bf.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 					Graphics g = nf.getGraphics();
@@ -111,26 +82,70 @@ public class SectionReaction implements ISection{
 					}
 					g.dispose();
 					bf = nf;
-				}
 
-				tf = new File(System.getProperty("java.io.tmpdir") + File.pathSeperator + String.valueOf(e.getMessage().getLongID()) + ".png");
-				ImageIO.write(bf, "png", tf);
-				c = true;
+					if(c.startsWith("low") || c.startsWith("wol")){
+						AffineTransform at = AffineTransform.getScaleInstance(1, -1);
+						at.translate(0, -bf.getHeight(null));
+						AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						bf = ato.filter(bf, null);
+					}
+					if(c.endsWith("top") || c.endsWith("pot")){
+						AffineTransform at = AffineTransform.getScaleInstance(-1, 1);
+						at.translate(-bf.getWidth(null), 0);
+						AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						bf = ato.filter(bf, null);
+					}
+					else if(c.endsWith("low") || c.endsWith("wol")){
+						AffineTransform at = AffineTransform.getScaleInstance(-1, -1);
+						at.translate(-bf.getWidth(null), -bf.getHeight(null));
+						AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+						bf = ato.filter(bf, null);
+					}
+
+					if(c.contains("pot") ^ c.contains("wol")){
+						LookupTable lt = new LookupTable(0, 4){
+							@Override
+							public int[] lookupPixel(int[] s, int[] d){
+								d[0] = 255 - s[0];
+								d[1] = 255 - s[1];
+								d[2] = 255 - s[2];
+								return d;
+							}
+						};
+						LookupOp lo = new LookupOp(lt, new RenderingHints(null));
+						bf = lo.filter(bf, null);
+					}
+
+					if(!p.equals(r)){
+					}
+
+					tf = new File(System.getProperty("java.io.tmpdir") + File.separator + String.valueOf(e.getMessage().getLongID()) + ".png");
+					ImageIO.write(bf, "png", tf);
+					ch = true;
+				}
+				catch(IOException ee){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage("The timeimage commited a timecrime to it has to do the timecrime in timeerrorland.");
+					});
+				}
 			}
 
 			final File f = tf;
 			if(f != null){
+				final boolean fch = ch;
 				RequestBuffer.request(() -> {
 					try{
-						e.getMessage().getChannel().sendFile(imgs.get(lsf));
+						e.getMessage().getChannel().sendFile(f);
 					}
 					catch(FileNotFoundException fe){
 						fe.printStackTrace();
 					}
+					finally{
+						if(fch){
+							f.delete();
+						}
+					}
 				});
-			}
-			if(c){
-				f.delete();
 			}
 		}
 	}
@@ -152,7 +167,7 @@ public class SectionReaction implements ISection{
 
 	@Override
 	public String[] desc(){
-		return new String[] {"slight_smile", EnumSection.REACTION.toString(), "For all your reactions. Put multiple of the same reactions within the prefix/suffix to get many. Prefix and suffix the reaction name with top, pot, low, and wol for Fun Things(tm).", ":slightly_smiling:", ""};
+		return new String[] {"slight_smile", EnumSection.REACTION.toString(), "For all your reactions.", ":slightly_smiling:", "Put multiple of the same reactions within the prefix and suffix to get more reactions. Prefix and suffix the reaction name(s) with top, pot, low, and wol for Fun Things(tm)."};
 	}
 
 	@Override
