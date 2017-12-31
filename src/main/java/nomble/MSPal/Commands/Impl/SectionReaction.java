@@ -72,7 +72,10 @@ public class SectionReaction implements ISection{
 				try{
 					BufferedImage bf = ImageIO.read(tf);
 
-					int s = (bf.getWidth(null) * 9) / 43;
+					int s = bf.getWidth(null);
+					if(bf.getHeight(null) < 100){
+						s = (s * 9) / 43;
+					}
 					int t = r.length() / p.length();
 					BufferedImage nf = new BufferedImage(bf.getWidth(null) + (s * t), bf.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 					Graphics g = nf.getGraphics();
