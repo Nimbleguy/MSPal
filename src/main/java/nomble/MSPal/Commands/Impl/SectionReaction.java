@@ -7,9 +7,12 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +25,7 @@ import javax.imageio.ImageIO;
 import nomble.MSPal.Core.Util;
 import nomble.MSPal.Commands.EnumSection;
 import nomble.MSPal.Commands.ISection;
+import nomble.MSPal.Commands.Helper.Impl.Rainbow;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
@@ -68,9 +72,12 @@ public class SectionReaction implements ISection{
 
 			File tf = imgs.get(ls);
 			boolean ch = false;
-			if(tf != null && FilenameUtils.getExtension(tf.getName()).equals("png") && !(c.equals(r) && p.equals(r))){
-				try{
-					BufferedImage bf = ImageIO.read(tf);
+			BufferedImage bf = null;
+			try{
+				bf = ImageIO.read(tf);
+				if(tf != null && FilenameUtils.getExtension(tf.getName()).equals("png") && !(c.equals(r) && p.equals(r))){
+
+
 
 					int s = bf.getWidth(null);
 					if(bf.getHeight(null) < 100){
@@ -117,23 +124,32 @@ public class SectionReaction implements ISection{
 						LookupOp lo = new LookupOp(lt, new RenderingHints(null));
 						bf = lo.filter(bf, null);
 					}
-
-					tf = new File(System.getProperty("java.io.tmpdir") + File.separator + String.valueOf(e.getMessage().getLongID()) + ".png");
-					ImageIO.write(bf, "png", tf);
 					ch = true;
 				}
-				catch(IOException ee){
-					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage("The timeimage commited a timecrime to it has to do the timecrime in timeerrorland.");
-					});
-				}
+
+			}
+			catch(IOException ee){
+				RequestBuffer.request(() -> {
+					e.getMessage().getChannel().sendMessage("The timeimage commited a timecrime to it has to do the timecrime in timeerrorland.");
+				});
 			}
 
-			final File f = tf;
-			if(f != null){
-				final boolean fch = ch;
+			if(bf != null){
+				ByteArrayOutputStream bo = new ByteArrayOutputStream();
+				InputStream is = new ByteArrayInputStream(bo.toByteArray());
+				try{
+					ImageIO.write(bf, "png", bo);
+				}catch (IOException ex){
+					ex.printStackTrace();
+				}
+
 				RequestBuffer.request(() -> {
+
+					e.getMessage().getChannel().sendFile("",is,"SANDMAN.png");
+
+					/*
 					try{
+
 						e.getMessage().getChannel().sendFile(f);
 					}
 					catch(FileNotFoundException fe){
@@ -143,7 +159,7 @@ public class SectionReaction implements ISection{
 						if(fch){
 							f.delete();
 						}
-					}
+					}*/
 				});
 			}
 		}

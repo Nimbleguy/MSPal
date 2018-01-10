@@ -39,7 +39,6 @@ public class SectionFun implements ISection{
 			l = e.getGuild().getLongID();
 		}
 
-		long al = e.getAuthor().getLongID();
 		List<String[]> sl = Util.getCommand(e.getMessage().getContent(), l);
 		IChannel ic = e.getMessage().getChannel();
 		Random r = new Random();
@@ -49,13 +48,13 @@ public class SectionFun implements ISection{
 			if(c.equals("build")){
 				String s = border(1);
 				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendMessage(s);
+					ic.sendMessage(s);
 				});
 			}
 			else if(c.equals("destroy")){
 				String s = border(-1);
 				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendMessage(s);
+					ic.sendMessage(s);
 				});
 			}
 			else if(c.equals("pitchfork") && sa.length > 1){
@@ -108,13 +107,13 @@ public class SectionFun implements ISection{
 				}
 				if(!s.equals("")){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage("```" + s + "```");
+						ic.sendMessage("```" + s + "```");
 					});
 				}
 			}
 			else if(c.equals("pitchfork")){
 				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendMessage("```ANGRY AT OP? WANT TO JOIN THE MOB? WE'VE GOT YOU COVERED!\n" +
+					ic.sendMessage("```ANGRY AT OP? WANT TO JOIN THE MOB? WE'VE GOT YOU COVERED!\n" +
 										"COME ON DOWN TO THE PITCHFORK EMPORIUM! WE'VE GOT 'EM ALL!\n\n" +
 										"Traditional, Left Handed, AND Fancy!\n\n" +
 										"WE EVEN HAVE DISCOUNTED CLEARENCE FORKS!\n" +
@@ -135,44 +134,44 @@ public class SectionFun implements ISection{
 			else if(c.equals("murder") && sa.length > 2){
 				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()))){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " mysteriously disappeared!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " mysteriously disappeared!");
 					});
 				}
 				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID()))){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " did not reach the Nuclear Throne!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " did not reach the Nuclear Throne!");
 					});
 				}
 				else if(r.nextInt(8) == 0){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " tripped and accidentally commited seppuku!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " tripped and accidentally commited seppuku!");
 					});
 				}
 				else{
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " murdered " + sa[1] + "!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " murdered " + sa[1] + "!");
 					});
 				}
 			}
 			else if(c.equals("shoot") && sa.length > 2){
 				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()))){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " held the gun the wrong way around!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " held the gun the wrong way around!");
 					});
 				}
 				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID()))){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " went against BROFORCE!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " went against BROFORCE!");
 					});
 				}
 				else if(r.nextInt(8) == 0){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " tripped and accidentally commited sudoku!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " tripped and accidentally commited sudoku!");
 					});
 				}
 				else{
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " shot " + sa[1] + "!");
+						ic.sendMessage(e.getMessage().getAuthor().mention() + " shot " + sa[1] + "!");
 					});
 				}
 			}
@@ -184,7 +183,7 @@ public class SectionFun implements ISection{
 					ex.printStackTrace();
 				}
 				InputStream is = new ByteArrayInputStream(bo.toByteArray());
-				e.getMessage().getChannel().sendFile("",is,"SANDMAN.png");
+				ic.sendFile("",is,"SANDMAN.png");
 			}
 		}
 	}

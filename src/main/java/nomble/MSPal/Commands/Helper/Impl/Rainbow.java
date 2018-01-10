@@ -23,6 +23,7 @@ public class Rainbow {
 			
 			initphase = next(initphase,initrgb,change);
 			rgb=initrgb.clone();
+			phase=(int)(initphase+Math.random()>0.1?(Math.random()-.5)*10:0);
 		}
 		return bi;
 	}
