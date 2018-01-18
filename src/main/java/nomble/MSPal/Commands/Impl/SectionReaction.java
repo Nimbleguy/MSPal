@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Random;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -58,7 +60,7 @@ public class SectionReaction implements ISection{
 		for(String[] sa : sl){
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 
-			String r = c.replaceAll("^top", "").replaceAll("^low", "").replaceAll("^pot", "").replaceAll("^wol", "").replaceAll("top$", "").replaceAll("low$", "").replaceAll("pot$", "").replaceAll("wol$", "");
+			String r = c.replaceAll("^top", "").replaceAll("^low", "").replaceAll("^pot", "").replaceAll("^wol", "").replaceAll("top$", "").replaceAll("low$", "").replaceAll("pot$", "").replaceAll("wol$", "").replaceAll("bogen", "");;
 			String p = r;
 			Matcher m = repeat.matcher(r);
 			if(m.find()){
@@ -76,9 +78,6 @@ public class SectionReaction implements ISection{
 			try{
 				bf = ImageIO.read(tf);
 				if(tf != null && FilenameUtils.getExtension(tf.getName()).equals("png") && !(c.equals(r) && p.equals(r))){
-
-
-
 					int s = bf.getWidth(null);
 					if(bf.getHeight(null) < 100){
 						s = (s * 9) / 43;
@@ -92,6 +91,41 @@ public class SectionReaction implements ISection{
 					g.dispose();
 					bf = nf;
 
+					if(c.contains("bogen")){
+						BiFunction<Integer, Integer, Integer> lm;
+						int o = new Random().nextInt(6);
+
+						switch(o){
+							case 0:
+								lm = (a, b) -> a ^ b;
+								break;
+							case 1:
+								lm = (a, b) -> a & b;
+								break;
+							case 2:
+								lm = (a, b) -> a | b;
+								break;
+							case 3:
+								lm = (a, b) -> (a + b) % 16777215;
+								break;
+							case 4:
+								lm = (a, b) -> (a - b) % 16777215;
+								break;
+							case 5:
+								lm = (a, b) -> (a * b) % 16777215;
+								break;
+							default:
+								lm = (a, b) -> a;
+								break;
+						}
+
+						BufferedImage bb = Rainbow.getRainbow();
+						for(int x = 0; x < bf.getWidth(); x++){
+							for(int y = 0; y < bf.getHeight(); y++){
+								bf.setRGB(x, y, lm.apply(bf.getRGB(x, y), bb.getRGB(x % bb.getWidth(), y % bb.getHeight())));
+							}
+						}
+					}
 					if(c.startsWith("low") || c.startsWith("wol")){
 						AffineTransform at = AffineTransform.getScaleInstance(1, -1);
 						at.translate(0, -bf.getHeight(null));
@@ -139,27 +173,13 @@ public class SectionReaction implements ISection{
 				InputStream is = new ByteArrayInputStream(bo.toByteArray());
 				try{
 					ImageIO.write(bf, "png", bo);
-				}catch (IOException ex){
+				}
+				catch (IOException ex){
 					ex.printStackTrace();
 				}
 
 				RequestBuffer.request(() -> {
-
 					e.getMessage().getChannel().sendFile("",is,"SANDMAN.png");
-
-					/*
-					try{
-
-						e.getMessage().getChannel().sendFile(f);
-					}
-					catch(FileNotFoundException fe){
-						fe.printStackTrace();
-					}
-					finally{
-						if(fch){
-							f.delete();
-						}
-					}*/
 				});
 			}
 		}
