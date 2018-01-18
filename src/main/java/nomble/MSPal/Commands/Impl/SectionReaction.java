@@ -43,6 +43,8 @@ public class SectionReaction implements ISection{
 	private HashMap<List<String>, String> desc;
 
 	private Pattern repeat = Pattern.compile("^(.+?)\\1+$");
+	private Random rand = new Random();
+
 
 	public SectionReaction(){
 		load();
@@ -97,7 +99,7 @@ public class SectionReaction implements ISection{
 
 					if(c.contains("bogen")){
 						BiFunction<Integer, Integer, Integer> lm;
-						int o = new Random().nextInt(6);
+						int o = rand.nextInt(6);
 
 						switch(o){
 							case 0:
@@ -110,10 +112,10 @@ public class SectionReaction implements ISection{
 								lm = (a, b) -> a | b;
 								break;
 							case 3:
-								lm = (a, b) -> (a + b) % 16777215;
+								lm = (a, b) -> a % b;
 								break;
 							case 4:
-								lm = (a, b) -> (a - b) % 16777215;
+								lm = (a, b) -> (a + b) % 16777215;
 								break;
 							case 5:
 								lm = (a, b) -> (a * b) % 16777215;
@@ -188,7 +190,10 @@ public class SectionReaction implements ISection{
 			}
 			else{
 				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendFile(tf);
+					try{
+						e.getMessage().getChannel().sendFile(tf);
+					}
+					catch(FileNotFoundException ee){}
 				});
 			}
 		}

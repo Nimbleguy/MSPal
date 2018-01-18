@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class Rainbow {
 	public static BufferedImage getRainbow(){
+		double vel = 0;
 		Random r = new Random();
 		double reps = Math.random()*2+1;
 		BufferedImage bi = new BufferedImage(r.nextInt(2000)+200, r.nextInt(1000)+100, BufferedImage.TYPE_INT_RGB);//uses one byte per rgb data, 3 bytes per pixel
@@ -20,9 +21,10 @@ public class Rainbow {
 				phase=next(phase,rgb,change);
 			}
 
-			initphase = next(initphase,initrgb,change);
-			rgb=initrgb.clone();
-			phase=(int)Math.abs(initphase+Math.random()>0.1?(Math.random()-.5)*10:0);
+			vel += (Math.random() - Math.random()) / (vel - 5);
+			initphase = next(initphase, initrgb, (change * vel) * (bi.getHeight() % (y + 1)) / Math.sqrt(bi.getHeight()));
+			phase = initphase;
+			rgb = initrgb.clone();
 		}
 		return bi;
 	}
