@@ -72,6 +72,10 @@ public class SectionReaction implements ISection{
 				ls = Arrays.asList(p, Long.toString(l));
 			}
 
+			if(imgs.get(ls) == null){
+				continue;
+			}
+
 			File tf = imgs.get(ls);
 			boolean ch = false;
 			BufferedImage bf = null;
@@ -170,16 +174,16 @@ public class SectionReaction implements ISection{
 
 			if(bf != null){
 				ByteArrayOutputStream bo = new ByteArrayOutputStream();
-				InputStream is = new ByteArrayInputStream(bo.toByteArray());
 				try{
 					ImageIO.write(bf, "png", bo);
 				}
 				catch (IOException ex){
 					ex.printStackTrace();
 				}
+				InputStream is = new ByteArrayInputStream(bo.toByteArray());
 
 				RequestBuffer.request(() -> {
-					e.getMessage().getChannel().sendFile("",is,"SANDMAN.png");
+					e.getMessage().getChannel().sendFile("", is, "SANDMAN.png");
 				});
 			}
 		}
