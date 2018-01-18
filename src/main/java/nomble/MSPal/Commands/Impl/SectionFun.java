@@ -181,7 +181,7 @@ public class SectionFun implements ISection{
 					});
 				}
 			}
-			else if(c.equals("rainbow")){
+			else if(c.equals("regenbogen")){
 				ByteArrayOutputStream bo = new ByteArrayOutputStream();
 				try{
 					ImageIO.write(Rainbow.getRainbow(), "png", bo);
@@ -236,7 +236,8 @@ public class SectionFun implements ISection{
 			{"destroy", "We will dig a moat, so that none shall border glorious 'MURICA."},
 			{"murder", "You're dead, kid. Takes 1 argument: the target."},
 			{"shoot", "We've got guns with six senses. Takes 1 argument: the target."},
-			{"pitchfork", "Enact revenge upon op! Takes 0 or 1 arguments: use none to list potential arguments."}};
+			{"pitchfork", "Enact revenge upon op! Takes 0 or 1 arguments: use none to list potential arguments."},
+			{"regenbogen", "Somewhere. Fun fact: put 'bogen' between the prefix and suffix for any command in the Reactions section to become bogen'd."}};
 	}
 
 	@Override

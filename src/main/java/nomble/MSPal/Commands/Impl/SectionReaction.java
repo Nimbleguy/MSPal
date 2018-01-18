@@ -80,8 +80,8 @@ public class SectionReaction implements ISection{
 			boolean ch = false;
 			BufferedImage bf = null;
 			try{
-				bf = ImageIO.read(tf);
 				if(tf != null && FilenameUtils.getExtension(tf.getName()).equals("png") && !(c.equals(r) && p.equals(r))){
+					bf = ImageIO.read(tf);
 					int s = bf.getWidth(null);
 					if(bf.getHeight(null) < 100){
 						s = (s * 9) / 43;
@@ -184,6 +184,11 @@ public class SectionReaction implements ISection{
 
 				RequestBuffer.request(() -> {
 					e.getMessage().getChannel().sendFile("", is, "SANDMAN.png");
+				});
+			}
+			else{
+				RequestBuffer.request(() -> {
+					e.getMessage().getChannel().sendFile(tf);
 				});
 			}
 		}
