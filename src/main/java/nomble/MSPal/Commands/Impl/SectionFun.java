@@ -8,6 +8,7 @@ import nomble.MSPal.Core.Util;
 import nomble.MSPal.Data.Impl.DataSettings;
 import nomble.MSPal.Commands.EnumSection;
 import nomble.MSPal.Commands.ISection;
+import nomble.MSPal.Commands.Helper.Impl.Rainbow;
 
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
@@ -173,6 +174,17 @@ public class SectionFun implements ISection{
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " shot " + String.join(" ", saa) + "!");
 					});
 				}
+			}
+			else if(c.equals("rainbow")){
+				ByteArrayOutputStream bo = new ByteArrayOutputStream();
+				try{
+					ImageIO.write(Rainbow.getRainbow(), "png", bo);
+				}
+				catch (IOException ex){
+					ex.printStackTrace();
+				}
+				InputStream is = new ByteArrayInputStream(bo.toByteArray());
+				ic.sendFile("",is,"SANDMAN.png");
 			}
 		}
 	}
