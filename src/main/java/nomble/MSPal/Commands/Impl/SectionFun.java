@@ -126,7 +126,7 @@ public class SectionFun implements ISection{
 										"Uber!```");
 				});
 			}
-			else if(c.equals("murder") && sa.length > 2){
+			else if(c.equals("murder") && sa.length > 1){
 				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()))){
 					RequestBuffer.request(() -> {
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " mysteriously disappeared!");
@@ -144,14 +144,16 @@ public class SectionFun implements ISection{
 				}
 				else{
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " murdered " + sa[1] + "!");
+						String[] saa = new String[sa.length - 1];
+						System.arraycopy(sa, 1, saa, 0, saa.length);
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " murdered " + String.join(" ", saa) + "!");
 					});
 				}
 			}
-			else if(c.equals("shoot") && sa.length > 2){
+			else if(c.equals("shoot") && sa.length > 1){
 				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()))){
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " held the gun the wrong way around!");
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " misused the Resolver!");
 					});
 				}
 				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID()))){
@@ -166,7 +168,9 @@ public class SectionFun implements ISection{
 				}
 				else{
 					RequestBuffer.request(() -> {
-						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " shot " + sa[1] + "!");
+						String[] saa = new String[sa.length - 1];
+						System.arraycopy(sa, 1, saa, 0, saa.length);
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " shot " + String.join(" ", saa) + "!");
 					});
 				}
 			}
@@ -205,13 +209,15 @@ public class SectionFun implements ISection{
 				s = "";
 				break;
 		}
-		return "The " + (w < 0 ? "moat" : "wall") + " just got 1 foot " + (m < 0 ? (w < 0 ? "deeper" : "shallower") : (w < 0 ? "shorter" : "taller")) + "! It is now " + Math.abs(w) + " " + (Math.abs(w) == 1 ? "foot" : "feet") + " " + (w < 0 ? "deep" : "tall") + "." + s;
+		return "The " + (w < 0 ? "moat" : "wall") + " just got 1 foot " + (m < 0 ? (w < 0 ? "deeper" : "shorter") : (w < 0 ? "shallower" : "taller")) + "! It is now " + Math.abs(w) + " " + (Math.abs(w) == 1 ? "foot" : "feet") + " " + (w < 0 ? "deep" : "tall") + "." + s;
 	}
 	
 	@Override
 	public String[][] getInfo(long c){
 		return new String[][] {{"build", "We will build a wall, and everybody else will pay for it."},
 			{"destroy", "We will dig a moat, so that none shall border glorious 'MURICA."},
+			{"murder", "You're dead, kid. Takes 1 argument: the target."},
+			{"shoot", "We've got guns with six senses. Takes 1 argument: the target."},
 			{"pitchfork", "Enact revenge upon op! Takes 0 or 1 arguments: use none to list potential arguments."}};
 	}
 
