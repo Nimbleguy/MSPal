@@ -25,20 +25,22 @@ public class MSPal{
 										"java -jar pal.jar [OPTIONS] (TOKEN)\n" +
 										" -------------------\n" +
 										"-o:\n" +
-										"   Bot owner UID." +
+										"   Bot owner UID.\n" +
+										"-e:\n" +
+										"   Database encryption password.\n" +
 										"-p:\n" +
-										"   Pastebin API ID." +
+										"   Pastebin API ID.\n" +
 										"-a:\n" +
-										"   SQL database IP/Name." +
+										"   SQL database IP/Name.\n" +
 										"-u:\n" +
-										"   SQL database username." +
+										"   SQL database username.\n" +
 										"-P:\n" +
-										"   SQL database password." +
+										"   SQL database password.\n" +
 										"-F:\n" +
-										"   SQL database table prefix.");
+										"   SQL database table prefix.\n");
 					System.exit(0);
 				}
-				
+
 				if(s.length() != 2 || (n = EnumInput.getInput(s.toCharArray()[1])) == null){
 					System.out.println("Invalid input: " + s);
 					System.exit(-1);
@@ -53,7 +55,7 @@ public class MSPal{
 		}
 
 		Security.addProvider(new BouncyCastleProvider());
-		
+
 		pal = new Bot(t, sa);
 		pal.init();
 	}

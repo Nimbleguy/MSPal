@@ -51,7 +51,11 @@ public class Util{
 	public static String getSuffix(long l){
 		return ":";
 	}
-	
+
+	public static int getCmdLimit(){
+		return 4;
+	}
+
 	public static long getOwner(){
 		return owner;
 	}

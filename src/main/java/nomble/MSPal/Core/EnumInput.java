@@ -2,6 +2,7 @@ package nomble.MSPal.Core;
 
 public enum EnumInput{
 	OWNER('o'),
+	ENCRYPT('e'),
 	PASTEBIN('p'),
 	SQLADDR('a'),
 	SQLUSER('u'),

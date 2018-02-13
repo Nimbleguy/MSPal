@@ -59,10 +59,15 @@ public class SectionReaction implements ISection{
 
 		List<String[]> sl = Util.getCommand(e.getMessage().getContent(), l);
 
+		int lim = 0;
 		for(String[] sa : sl){
+			if(lim++ > Util.getCmdLimit()){
+				break;
+			}
+
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 
-			String r = c.replaceAll("^top", "").replaceAll("^low", "").replaceAll("^pot", "").replaceAll("^wol", "").replaceAll("top$", "").replaceAll("low$", "").replaceAll("pot$", "").replaceAll("wol$", "").replaceAll("bogen", "");;
+			String r = c.replaceAll("^top", "").replaceAll("^low", "").replaceAll("^pot", "").replaceAll("^wol", "").replaceAll("top$", "").replaceAll("low$", "").replaceAll("pot$", "").replaceAll("wol$", "").replaceAll("bogen", "").replaceAll("bogold", "");
 			String p = r;
 			Matcher m = repeat.matcher(r);
 			if(m.find()){
@@ -99,6 +104,42 @@ public class SectionReaction implements ISection{
 
 					if(c.contains("bogen")){
 						BiFunction<Integer, Integer, Integer> lm;
+						int o = rand.nextInt(5);
+
+						switch(o){
+							case 0:
+								lm = (a, b) -> a & b;
+								break;
+							case 1:
+								lm = (a, b) -> a | b;
+								break;
+							case 2:
+								lm = (a, b) -> (a + b) % 0xFF;
+								break;
+							case 3:
+								lm = (a, b) -> Math.min(a, b);
+								break;
+							case 4:
+								lm = (a, b) -> Math.max(a, b);
+								break;
+							default:
+								lm = (a, b) -> a;
+								break;
+						}
+
+						BufferedImage bb = Rainbow.getRainbow();
+						for(int x = 0; x < bf.getWidth(); x++){
+							for(int y = 0; y < bf.getHeight(); y++){
+								int bfc = bf.getRGB(x, y);
+								int bbc = bb.getRGB(x % bb.getWidth(), y % bb.getHeight());
+								bf.setRGB(x, y, (lm.apply(bfc >> 16, bbc >> 16) << 16) |
+										(lm.apply((bfc >> 8) & 0xFF, (bbc >> 8) & 0xFF) << 8) |
+										lm.apply(bfc & 0xFF, bbc & 0xFF));
+							}
+						}
+					}
+					if(c.contains("bogold")){
+						BiFunction<Integer, Integer, Integer> lm;
 						int o = rand.nextInt(6);
 
 						switch(o){
@@ -115,10 +156,10 @@ public class SectionReaction implements ISection{
 								lm = (a, b) -> a % b;
 								break;
 							case 4:
-								lm = (a, b) -> (a + b) % 16777215;
+								lm = (a, b) -> (a + b) % 0xFFFFFF;
 								break;
 							case 5:
-								lm = (a, b) -> (a * b) % 16777215;
+								lm = (a, b) -> (a * b) % 0xFFFFFF;
 								break;
 							default:
 								lm = (a, b) -> a;
@@ -128,7 +169,9 @@ public class SectionReaction implements ISection{
 						BufferedImage bb = Rainbow.getRainbow();
 						for(int x = 0; x < bf.getWidth(); x++){
 							for(int y = 0; y < bf.getHeight(); y++){
-								bf.setRGB(x, y, lm.apply(bf.getRGB(x, y), bb.getRGB(x % bb.getWidth(), y % bb.getHeight())));
+								int bfc = bf.getRGB(x, y);
+								int bbc = bb.getRGB(x % bb.getWidth(), y % bb.getHeight());
+								bf.setRGB(x, y, lm.apply(bfc, bbc));;
 							}
 						}
 					}
@@ -216,7 +259,8 @@ public class SectionReaction implements ISection{
 
 	@Override
 	public String[] desc(){
-		return new String[] {"slight_smile", EnumSection.REACTION.toString(), "For all your reactions.", ":slightly_smiling:", "Put multiple of the same reactions within the prefix and suffix to get more reactions. Prefix and suffix the reaction name(s) with top, pot, low, and wol for Fun Things(tm)."};
+		return new String[] {"slight_smile", EnumSection.REACTION.toString(), "For all your reactions.", ":slightly_smiling:",
+				"Put multiple of the same reactions within the prefix and suffix to get more reactions. Prefix and suffix the reaction name(s) with top, pot, low, and wol for Fun Things(tm)."};
 	}
 
 	@Override

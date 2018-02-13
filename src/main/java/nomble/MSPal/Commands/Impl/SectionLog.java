@@ -39,7 +39,12 @@ public class SectionLog implements ISection{
 		List<String[]> sl = Util.getCommand(e.getMessage().getContent(), l);
 		IChannel ic = e.getChannel();
 
+		int lim = 0;
 		for(String[] sa : sl){
+			if(lim++ > Util.getCmdLimit()){
+				break;
+			}
+
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 			if(c.equals("logbet") && sa.length >= 3){
 				new Thread(() -> {

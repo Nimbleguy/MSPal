@@ -47,7 +47,12 @@ public class SectionBot implements ISection{
 		List<String[]> sl = Util.getCommand(e.getMessage().getContent(), l);
 		IChannel ic = e.getMessage().getChannel();
 
+		int lim = 0;
 		for(String[] sa : sl){
+			if(lim++ > Util.getCmdLimit()){
+				break;
+			}
+
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 			if(c.equals("help") || c.equals("commands") || c.equals("info")){
 				EmbedObject eo = getBaseEmbed(l, ic, e.getClient().getOurUser());
@@ -259,6 +264,7 @@ public class SectionBot implements ISection{
 		b.appendField("Don't trust me?", "Check my [github](https://github.com/Nimbleguy/MSPal).", false);
 		b.appendField("Want a bot invite?", "Here's the [link](https://discordapp.com/oauth2/authorize?client_id=208370298636992513&scope=bot&permissions=101440).", false);
 		b.appendField("Want bot news?", "Join the [discord](https://discord.gg/bCSD6cz).", false);
+		b.appendField("Want to support me?", "Send Dogecoin to DQMWGNPseXnHVAcRwfQvP8cG2VqkF5napc.", false);
 
 		b.withFooterText("Made by Nomble#8128 | Now on " + e.getClient().getGuilds().size() + " Guilds!");
 

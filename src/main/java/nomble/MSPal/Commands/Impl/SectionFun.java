@@ -45,7 +45,12 @@ public class SectionFun implements ISection{
 		IChannel ic = e.getMessage().getChannel();
 		Random r = new Random();
 
+		int lim = 0;
 		for(String[] sa : sl){
+			if(lim++ > Util.getCmdLimit()){
+				break;
+			}
+
 			String c = sa[0].replaceFirst("^" + Util.getPrefix(l), "").replaceFirst(Util.getSuffix(l) + "$", "");
 			if(c.equals("build")){
 				String s = border(1);
@@ -237,7 +242,7 @@ public class SectionFun implements ISection{
 			{"murder", "You're dead, kid. Takes 1 argument: the target."},
 			{"shoot", "We've got guns with six senses. Takes 1 argument: the target."},
 			{"pitchfork", "Enact revenge upon op! Takes 0 or 1 arguments: use none to list potential arguments."},
-			{"regenbogen", "Somewhere. Fun fact: put 'bogen' between the prefix and suffix for any command in the Reactions section to become bogen'd."}};
+			{"regenbogen", "Somewhere. Fun fact: put 'bogen' between the prefix and suffix for any command in the Reactions section to become bogen'd. 'bogold' also is a thing for the old modifier."}};
 	}
 
 	@Override
