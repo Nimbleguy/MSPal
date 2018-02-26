@@ -74,9 +74,9 @@ public class SectionReaction implements ISection{
 				p = m.group(1);
 			}
 
-			List<String> ls = Arrays.asList(p);
+			List<String> ls = Arrays.asList(p, Long.toString(l));
 			if(imgs.get(ls) == null){
-				ls = Arrays.asList(p, Long.toString(l));
+				ls = Arrays.asList(p);
 			}
 
 			if(imgs.get(ls) == null){
