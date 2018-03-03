@@ -226,7 +226,9 @@ public class SectionBot implements ISection{
 		int m = Math.min(is.getInfo(l).length, 25 * (n + 1));
 		
 		for(String[] sa : Arrays.copyOfRange(is.getInfo(l), 25 * n, m)){
-			b.appendField(sa[0] + "\t\t", sa[1], false);
+			if(sa != null && sa[0] != null && sa[1] != null){
+				b.appendField(sa[0] + "\t\t", sa[1], false);
+			}
 		}
 		
 		return b.build();

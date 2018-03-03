@@ -248,7 +248,7 @@ public class SectionReaction implements ISection{
 
 		int i = 0;
 		for(Entry<List<String>, String> e : desc.entrySet()){
-			if(e.getKey().size() == 1 || e.getKey().get(1).equals(Long.toString(c))){
+			if((e.getKey().size() == 1 || e.getKey().get(1).equals(Long.toString(c))) && e.getKey().get(0) != null && e.getValue() != null){
 				sa[i][0] = e.getKey().get(0);
 				sa[i++][1] = e.getValue();
 			}
