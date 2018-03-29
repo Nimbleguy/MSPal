@@ -52,6 +52,10 @@ public class SectionReaction implements ISection{
 
 	@EventSubscriber
 	public void onMessage(MessageReceivedEvent e){
+		if(e.getAuthor().isBot()){
+			return;
+		}
+
 		long l = -1;
 		if(!(e.getChannel() instanceof IPrivateChannel)){
 			l = e.getMessage().getGuild().getLongID();

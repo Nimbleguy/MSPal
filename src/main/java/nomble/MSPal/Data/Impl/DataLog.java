@@ -2,7 +2,6 @@ package nomble.MSPal.Data.Impl;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.*;
-import java.time.ZoneOffset;
 
 import javax.crypto.Cipher;
 import org.bouncycastle.util.Arrays;
@@ -32,7 +31,7 @@ public class DataLog implements IData{
 	}
 	
 	public boolean addNote(long l, IMessage m){
-		String u = String.valueOf(m.getTimestamp().toEpochSecond(ZoneOffset.UTC));
+		String u = String.valueOf(m.getTimestamp().getEpochSecond());
 		String d = String.valueOf(m.getLongID());
 		int fi = getFreeIndex(l);
 		String i = String.valueOf(fi);

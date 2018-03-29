@@ -35,6 +35,10 @@ public class SectionFun implements ISection{
 
 	@EventSubscriber
 	public void onMessage(MessageReceivedEvent e){
+		if(e.getAuthor().isBot()){
+			return;
+		}
+
 		long l = -1;
 		if(!(e.getChannel() instanceof IPrivateChannel)){
 			l = e.getGuild().getLongID();
@@ -144,6 +148,11 @@ public class SectionFun implements ISection{
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " mysteriously disappeared!");
 					});
 				}
+				else if(sa[1].contains(String.valueOf(Util.getOwner()))){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " was detained!");
+					});
+				}
 				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID()))){
 					RequestBuffer.request(() -> {
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " did not reach the Nuclear Throne!");
@@ -166,6 +175,11 @@ public class SectionFun implements ISection{
 				if(sa[1].contains(String.valueOf(e.getClient().getOurUser().getLongID()))){
 					RequestBuffer.request(() -> {
 						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " misused the Resolver!");
+					});
+				}
+				else if(sa[1].contains(String.valueOf(Util.getOwner()))){
+					RequestBuffer.request(() -> {
+						e.getMessage().getChannel().sendMessage(e.getMessage().getAuthor().mention() + " learned about the Okhrana!");
 					});
 				}
 				else if(sa[1].contains(String.valueOf(e.getMessage().getAuthor().getLongID()))){

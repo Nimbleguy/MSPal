@@ -75,7 +75,7 @@ public class DataGuild implements IData{
 					
 					byte[] cc = Util.cipher(ca, ci, Cipher.DECRYPT_MODE);
 					if(Arrays.equals(Util.mac(cc), ch)){
-						return new String(cc, "UTF-8");
+						return new String(cc, "UTF-8").replace("cmdban|", "");
 					}
 				}
 			}

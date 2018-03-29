@@ -1,6 +1,5 @@
 package nomble.MSPal.Commands.Impl;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 
@@ -31,6 +30,10 @@ public class SectionLog implements ISection{
 
 	@EventSubscriber
 	public void onMessage(MessageReceivedEvent e){
+		if(e.getAuthor().isBot()){
+			return;
+		}
+
 		long l = -1;
 		if(!(e.getChannel() instanceof IPrivateChannel)){
 			l = e.getMessage().getGuild().getLongID();
@@ -141,7 +144,7 @@ public class SectionLog implements ISection{
 
 		for(IMessage m : mh){
 			if(main.getData(DataConsent.class).getConsent(m.getAuthor().getLongID()) || b){
-				String ts = m.getTimestamp().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+				String ts = m.getTimestamp().toString();
 				sb.insert(0, "\n" + m.getAuthor().getName() + " (" + ts + " UTC): " + m.getContent());
 			}
 		}

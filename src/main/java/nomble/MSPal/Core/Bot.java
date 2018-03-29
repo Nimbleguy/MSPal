@@ -15,6 +15,8 @@ import nomble.MSPal.Data.Impl.*;
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.obj.ActivityType;
+import sx.blah.discord.handle.obj.StatusType;
 
 public class Bot implements IListener<ReadyEvent>{
 	private IDiscordClient bot;
@@ -106,7 +108,7 @@ public class Bot implements IListener<ReadyEvent>{
 		}
 
 		bot.login();
-		bot.idle("with bootstraps.");
+		bot.changePresence(StatusType.ONLINE, ActivityType.PLAYING, "with bootstraps.");
 	}
 
 	public List<ISection> getSections(){
@@ -145,6 +147,6 @@ public class Bot implements IListener<ReadyEvent>{
 
 	@Override
 	public void handle(ReadyEvent e){
-		e.getClient().online(":info:");
+		e.getClient().changePresence(StatusType.ONLINE, ActivityType.WATCHING, "the :info:");
 	}
 }
